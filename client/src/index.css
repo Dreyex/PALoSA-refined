@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme {
+    
+}
+
+html {
+    font-family: 'Noto Sans', sans-serif;
+    scroll-behavior: smooth;
+    @apply bg-onyx text-quarz;
+}
