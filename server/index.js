@@ -13,7 +13,8 @@ app.use(express.json()); // To parse JSON bodies
 app.get("/api", (req, res) => {
     // In a real app, you would fetch this from a database
     const dataJson = {
-        title: "Hello World!"
+        title: "PALoSA",
+        settingTitles: ["Txt & Log", "JSON", "XML"],
     };
     res.json(dataJson);
 });
