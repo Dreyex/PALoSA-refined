@@ -14,7 +14,7 @@ app.get("/api", (req, res) => {
     // In a real app, you would fetch this from a database
     const dataJson = {
         title: "PALoSA",
-        settingTitles: ["Txt & Log", "JSON", "XML"],
+        settingTitles: ["Txt & Log", "JSON", "XML", "Regex Suchmuster"],
     };
     res.json(dataJson);
 });
