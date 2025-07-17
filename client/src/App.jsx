@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 
 
 //Components
-import FileUploadCard from './components/fileUploadCard';
-import SettingField from './components/ui/settingField';
-import Button from './components/ui/button';
+import FileUploadCard from './components/FileUploadCard';
+import SettingField from './components/SettingField';
+import Button from './components/ui/Button';
 
 function App() {
   const [data, setData] = useState(null);

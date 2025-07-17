@@ -1,5 +1,5 @@
 import React from 'react';
-import FileItem from './fileItem';
+import FileItem from './FileItem';
 
 export default function FileList({ files, onRemove }) {
     if (!files.length) return null;

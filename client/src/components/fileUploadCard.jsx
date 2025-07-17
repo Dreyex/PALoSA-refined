@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { Upload } from 'lucide-react';
 
-import Button from './ui/button';
-import Card from './ui/card';
-import FileInput from './ui/fileInput';
-import FileList from './ui/fileList';
+import Button from './ui/Button';
+import Card from './ui/Card';
+import FileInput from './ui/FileInput';
+import FileList from './ui/FileList';
 
 const ACCEPTED_FILE_TYPES =
     '.xml,.json,.log,.txt,application/xml,application/json,text/plain';
