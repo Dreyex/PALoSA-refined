@@ -7,7 +7,7 @@ export default function FileItem({ file, onRemove }) {
             <span className="truncate w-4/5" title={file.name}>{file.name}</span>
             <button
                 onClick={onRemove}
-                className="ml-2 text-rose-500 hover:text-rose-700 cursor-pointer hover:scale-110"
+                className="ml-2 text-rose-500 hover:text-rose-700 cursor-pointer hover:scale-120 transition-all duration-100"
                 title="Entfernen"
             >
                 <X size={46}/>

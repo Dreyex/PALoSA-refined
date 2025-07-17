@@ -36,7 +36,7 @@ function SettingField({ showFileInput = false, showTextInput = false, options, h
                             CSV (mit Komma getrennt)
                         </p>
                     </div>
-                    <button className='bg-steel-900 p-2 rounded-sm hover:text-lagoon-700 hover:scale-110 transition-all duration-100'>
+                    <button className='bg-steel-900 p-2 rounded-sm hover:text-rose-500 hover:scale-120 transition-all duration-100 cursor-pointer'>
                         <Upload />
                     </button>
                 </div>
@@ -54,7 +54,7 @@ function SettingField({ showFileInput = false, showTextInput = false, options, h
                         />
                         <button
                             onClick={addEntry}
-                            className='bg-steel-900 p-2 rounded-sm hover:text-evergreen-800 hover:scale-110 transition-all duration-100'
+                            className='bg-steel-900 p-2 rounded-sm hover:text-rose-500 hover:scale-120 transition-all duration-100 cursor-pointer'
                         >
                             <Plus />
                         </button>
@@ -70,7 +70,7 @@ function SettingField({ showFileInput = false, showTextInput = false, options, h
                                     <span>{entry}</span>
                                     <button
                                         onClick={() => removeEntry(entry)}
-                                        className="text-rose-500 hover:text-rose-700 hover:curso-pointer hover:scale-110"
+                                        className="text-rose-500 hover:text-rose-700 hover:cursor-pointer hover:scale-120 transition-all duration-100"
                                         title="Entfernen"
                                     >
                                         <X size={32} />
