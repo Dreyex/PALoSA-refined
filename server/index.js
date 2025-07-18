@@ -16,6 +16,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // To parse JSON bodies
 
+//TODO: Automatisches aufräumen der Sessions und Löschen alter Dateien
 app.use(
     session({
         secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
