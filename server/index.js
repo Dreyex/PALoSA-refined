@@ -1,5 +1,12 @@
-import express from 'express';
-import cors from 'cors';
+import express from "express";
+import cors from "cors";
+import fs from "fs";
+import path from "path";
+
+//Sessions
+import session from "express-session";
+//Upload
+import multer from "multer";
 
 // Initialize app
 const app = express();
@@ -9,6 +16,41 @@ const PORT = process.env.PORT || 3001;
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // To parse JSON bodies
 
+app.use(
+    session({
+        secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: false }, // Bei HTTPS sollte dies true sein!
+    })
+);
+
+// Multer Speicher-Engine dynamisch nach Button-Auswahl
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const sessionId = req.session.id;
+        // Hole buttonType aus req.query (weil es vor Multer-Parsing bereits verfügbar ist)
+        const type = req.query.buttonType;
+        let folder;
+        if (type === "json") {
+            folder = "json";
+        } else if (type === "xml") {
+            folder = "xml";
+        } else {
+            folder = "other";
+        }
+        const dest = path.join("uploads", sessionId, folder); // z. B. uploads/SESSIONID/xml
+        fs.mkdirSync(dest, { recursive: true });
+        cb(null, dest);
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    },
+});
+
+// Setup Multer
+const upload = multer({ storage });
+
 // A sample API route for portfolio data
 app.get("/api", (req, res) => {
     // In a real app, you would fetch this from a database
@@ -17,6 +59,21 @@ app.get("/api", (req, res) => {
         settingTitles: ["Txt & Log", "JSON", "XML", "Regex Suchmuster"],
     };
     res.json(dataJson);
+});
+
+app.get("/api/session-test", (req, res) => {
+    req.session.views = (req.session.views || 0) + 1;
+    res.json({ views: req.session.views });
+});
+
+// Upload-Route
+app.post("/api/upload", upload.array("files"), (req, res) => {
+    res.json({
+        success: true,
+        path: req.files.path,
+        originalname: req.files.originalname,
+        buttonType: req.body.buttonType,
+    });
 });
 
 // Start server

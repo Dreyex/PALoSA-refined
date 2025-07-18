@@ -47,12 +47,12 @@ function App() {
       </h2>
       <div className='flex flex-row justify-between w-10/12 mx-auto mt-12'>
         <SettingField options={['Option 1', 'Option 2', 'Option 3']} headline={data.settingTitles[0]}/>
-        <SettingField showFileInput={true} showTextInput={true} options={['Option 1', 'Option 2', 'Option 3']} headline={data.settingTitles[1]}/>
-        <SettingField showFileInput={true} showTextInput={true} options={['Option 1', 'Option 2', 'Option 3']} headline={data.settingTitles[2]}/>
+        <SettingField showFileInput={true} showTextInput={true} options={['Option 1', 'Option 2', 'Option 3']} headline={data.settingTitles[1]} fileUploadType="json"/>
+        <SettingField showFileInput={true} showTextInput={true} options={['Option 1', 'Option 2', 'Option 3']} headline={data.settingTitles[2]} fileUploadType="xml"/>
         <SettingField showTextInput={true} headline={data.settingTitles[3]} comment="Für alle Dateien"/>
       </div>
       <div className='mt-12'>
-        <FileUploadCard />
+        <FileUploadCard fileUploadType="other"/>
       </div>
       <div className='mt-12 mx-auto text-center'>
         <Button variant="danger" className="font-extrabold text-2xl">
