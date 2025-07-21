@@ -16,7 +16,7 @@ function SettingField({
                 {headline}
             </h1>
             <p className='mb-6 text-center text-sm opacity-80'>{comment}</p>
-            {showFileInput && <FileUploadInput headline={'Config auswählen'} comment={'CSV (mit Komma getrennt)'} buttonType={fileUploadType}/>}
+            {showFileInput && <FileUploadInput headline={'Config auswählen'} comment={'JSON'} buttonType={fileUploadType}/>}
             {showTextInput && <TextPatternInput />}
             {options && Array.isArray(options) && options.length > 0 && (
                 <CheckboxOptionList options={options} />

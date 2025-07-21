@@ -43,6 +43,7 @@ export default function FileUploadInput({ headline, comment, buttonType = "other
                     id='file_input'
                     type='file'
                     onChange={handleChange}
+                    accept=".json"
                 />
                 <p
                     className='mt-1 text-xs'

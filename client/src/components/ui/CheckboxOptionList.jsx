@@ -1,4 +1,4 @@
-import IconCheckbox from "./iconCheckbox";
+import IconCheckbox from "./IconCheckbox";
 
 export default function CheckboxOptionList({ options }) {
     return (
