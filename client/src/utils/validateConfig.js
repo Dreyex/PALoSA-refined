@@ -29,7 +29,7 @@ const schema = {
                         type: "string",
                     },
                 },
-                required: ["sources", "seperator"],
+                required: ["sources", "separator"],
             },
         },
     },
