@@ -7,6 +7,8 @@ import path from "path";
 import session from "express-session";
 //Upload
 import multer from "multer";
+//utils
+import startProcessManager from "./utils/processManager.js";
 
 // Initialize app
 const app = express();
@@ -76,6 +78,14 @@ app.post("/api/upload", upload.array("files"), (req, res) => {
         originalname: req.files.originalname,
         buttonType: req.body.buttonType,
     });
+});
+
+app.post("/api/pseudo", (req, res) => {
+    try {
+        startProcessManager(req.session.id, req.body);
+    } catch (error) {
+        
+    }
 });
 
 // Start server
