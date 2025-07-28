@@ -82,9 +82,12 @@ app.post("/api/upload", upload.array("files"), (req, res) => {
 
 app.post("/api/pseudo", (req, res) => {
     try {
-        startProcessManager(req.session.id, req.body);
+        const settings = req.body;
+        startProcessManager(req.sessionID, settings);
+        res.json({ success: true});
     } catch (error) {
-        
+        console.error(err);
+        res.status(500).json({ error: 'Fehler bei der Verarbeitung' });
     }
 });
 

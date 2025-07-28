@@ -51,7 +51,7 @@ function App() {
         } catch (err) {
             console.error("Fehler beim Senden der Einstellungen:", err);
             alert(
-                "Fehler beim Senden der Einstellungen. Bitte versuche es erneut."
+                "Fehler beim Senden der Einstellungen. Bitte versuche es erneut.", err
             );
         }
     };
