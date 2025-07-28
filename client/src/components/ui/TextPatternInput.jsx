@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus, X } from "lucide-react";
 
 export default function TextPatternInput({value = [], onChange}) {

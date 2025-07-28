@@ -29,7 +29,6 @@ function App() {
         }));
     };
 
-    //TODO: Fix Error when fetching --> Maybe Response Connected
     const handleSubmit = async () => {
         //console.log(settings);
         try {
