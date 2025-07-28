@@ -31,7 +31,7 @@ function App() {
 
     //TODO: Fix Error when fetching --> Maybe Response Connected
     const handleSubmit = async () => {
-        console.log(settings);
+        //console.log(settings);
         try {
             const response = await fetch("/api/pseudo", {
                 // Beispiel: Endpunkt "/api/settings"
