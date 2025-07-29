@@ -1,14 +1,29 @@
 import path from "path";
 import fs from "fs/promises";
+import { createFile } from "./createFile.js";
 
 export default async function mergeSettings(sessionId, settings, type) {
     const dirPath = path.join("uploads", sessionId, type);
 
     try {
         // 1. Finde die einzige Datei im Verzeichnis
-        const files = await fs.readdir(dirPath);
+        let files;
+        let fileName;
+        try {
+            files = await fs.readdir(dirPath);
+            fileName = files[0];
+        } catch (err) {
+            if(err.code === "ENOENT")
+            {
+                const content = `{ "sources": [], "derived": {} }`;
+                await createFile(dirPath, "config", "json", content); //erstellt auch die Directory
+                fileName = "config.json";
+            }
+            else {
+                throw err;
+            }
+        }
 
-        const fileName = files[0];
         const filePath = path.join(dirPath, fileName);
 
         // 2. Lese die JSON-Datei
