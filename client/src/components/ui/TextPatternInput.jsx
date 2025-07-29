@@ -1,18 +1,27 @@
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
 
-export default function TextPatternInput() {
+export default function TextPatternInput({value = [], onChange}) {
     const [text, setText] = useState("");
-    const [entries, setEntries] = useState([]);
 
     const addEntry = () => {
-        if (text.trim() !== "" && !entries.includes(text.trim())) {
-            setEntries((prev) => [...prev, text.trim()]);
+        const trimmed = text.trim();
+        if (trimmed !== "" && !value.includes(trimmed)) {
+            onChange([...value, trimmed]);
             setText("");
         }
     };
-    const removeEntry = (entryToRemove) =>
-        setEntries((prev) => prev.filter((item) => item !== entryToRemove));
+
+    const removeEntry = (entryToRemove) => {
+        onChange(value.filter((item) => item !== entryToRemove));
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addEntry();
+        }
+    };
 
     return (
         <div>
@@ -23,6 +32,7 @@ export default function TextPatternInput() {
                     placeholder='Suchmuster eingeben'
                     value={text}
                     onChange={(e) => setText(e.target.value)}
+                    onKeyDown={handleKeyDown}
                 />
                 <button
                     onClick={addEntry}
@@ -31,9 +41,9 @@ export default function TextPatternInput() {
                     <Plus />
                 </button>
             </div>
-            {entries.length > 0 && (
+            {value.length > 0 && (
                 <div className='rounded p-3 space-y-2 overflow-y-auto max-h-48 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-rose-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-steel-900'>
-                    {entries.map((entry, idx) => (
+                    {value.map((entry, idx) => (
                         <div
                             key={idx}
                             className='flex items-center justify-between bg-eclipse-800 rounded px-3 py-1 text-sm'

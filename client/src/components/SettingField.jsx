@@ -3,23 +3,45 @@ import TextPatternInput from "./ui/TextPatternInput";
 import CheckboxOptionList from "./ui/CheckboxOptionList";
 
 function SettingField({
+    id,
     showFileInput = false,
     showTextInput = false,
     options,
     headline,
     comment = "",
-    fileUploadType
+    fileUploadType,
+    value,
+    onChange,
 }) {
+    const handleCheckboxChange = (updateCheckedOptions) => {
+        onChange && onChange(id, { checkedOptions: updateCheckedOptions });
+    };
+
     return (
-        <div className='bg-steel-950 w-1/5 rounded-md p-4 shadow-glow'>
+        <div id={id} className='bg-steel-950 w-1/5 rounded-md p-4 shadow-glow'>
             <h1 className='text-center p-4 text-2xl opacity-80 font-extrabold'>
                 {headline}
             </h1>
             <p className='mb-6 text-center text-sm opacity-80'>{comment}</p>
-            {showFileInput && <FileUploadInput headline={'Config auswählen'} comment={'JSON'} buttonType={fileUploadType}/>}
-            {showTextInput && <TextPatternInput />}
+            {showFileInput && (
+                <FileUploadInput
+                    headline={"Config auswählen"}
+                    comment={"JSON"}
+                    buttonType={fileUploadType}
+                />
+            )}
+            {showTextInput && (
+                <TextPatternInput
+                    value={value?.patterns ?? []}
+                    onChange={(newPatterns) => onChange && onChange(id, { patterns: newPatterns })}
+                />
+            )}
             {options && Array.isArray(options) && options.length > 0 && (
-                <CheckboxOptionList options={options} />
+                <CheckboxOptionList
+                    options={options}
+                    value={value?.checkedOptions}
+                    onChange={handleCheckboxChange}
+                />
             )}
         </div>
     );
