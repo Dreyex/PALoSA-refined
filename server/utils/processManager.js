@@ -1,10 +1,10 @@
 import mergeSettings from "./mergeSettings.js";
 
 // Process Manager for the Pseudonymization process
-export default function startProcessManager(sessionId, data)
+export default async function startProcessManager(sessionId, data)
 {
     //console.log(data);
     //console.log(sessionId);
-    mergeSettings(sessionId, data, "json");
-    mergeSettings(sessionId, data, "xml");
+    await mergeSettings(sessionId, data, "json");
+    await mergeSettings(sessionId, data, "xml");
 }
