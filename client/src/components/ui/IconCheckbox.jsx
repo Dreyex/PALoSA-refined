@@ -1,15 +1,12 @@
-import { useState } from 'react';
 import { Check, X } from 'lucide-react';
 
-export default function IconCheckbox({ label, defaultChecked = false }) {
-    const [checked, setChecked] = useState(defaultChecked);
-
+export default function IconCheckbox({ label, checked, onChange }) {
     return (
         <label className="flex items-center gap-3 cursor-pointer select-none my-1 mx-auto">
             <input
                 type="checkbox"
                 checked={checked}
-                onChange={() => setChecked(!checked)}
+                onChange={onChange}
                 className="sr-only peer"
             />
             <div className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${checked ? 'bg-rose-500' : 'bg-eclipse-800'} peer-focus:ring-2 peer-focus:ring-rose-500`}>

@@ -21,7 +21,6 @@ export default function FileUploadInput({
         try {
             const data = JSON.parse(text);
             if (!validateConfig(data)) {
-                // Deine eigene Prüf-Funktion!
                 alert("Die Konfigurationsdatei hat ein ungültiges Format!");
                 setFile(null);
                 return;
@@ -31,7 +30,6 @@ export default function FileUploadInput({
             setFile(null);
             return;
         }
-        // Falls alles passt:
         setFile(selectedFile);
     };
 
