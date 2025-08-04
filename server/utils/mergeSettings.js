@@ -39,7 +39,7 @@ export default async function mergeSettings(sessionId, settings, type) {
         };
 
         const mainKey = keyMap[type];
-        console.log(mainKey);
+        //console.log(mainKey);
         if (!mainKey) {
             throw new Error(`Unbekannter Typ: ${type}`);
         }
@@ -83,9 +83,7 @@ export default async function mergeSettings(sessionId, settings, type) {
             "utf-8"
         );
 
-        console.log(
-            `Settings erfolgreich in Datei ${fileName} im Ordner ${type} für Session ${sessionId} gemerged.`
-        );
+        //console.log( `Settings erfolgreich in Datei ${fileName} im Ordner ${type} für Session ${sessionId} gemerged.`);
     } catch (err) {
         console.error("Fehler bei mergeSettings:", err);
         throw err;
