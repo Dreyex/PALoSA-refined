@@ -1,8 +1,6 @@
 export default async function processLogFiles(uploadDir, outputDir, settings) {
     const patterns = await requestRegex(settings);
     console.log(patterns);
-
-
 }
 
 async function requestRegex(settings) {
@@ -40,22 +38,5 @@ async function requestRegex(settings) {
     } catch (error) {
         console.error("Error in requestRegex:", error);
         return [];
-    }
-}
-
-async function generateFileName(fileName) {
-    try {
-        // Insert "-pseudo" before the file extension
-        const extIndex = fileName.lastIndexOf(".");
-        let newName;
-        if (extIndex !== -1) {
-            newName = fileName.slice(0, extIndex) + "-pseudo" + fileName.slice(extIndex);
-        } else {
-            newName = fileName + "-pseudo";
-        }
-        return newName;
-    } catch (error) {
-        console.error("Error in generateFileName:", error);
-        return fileName;
     }
 }
