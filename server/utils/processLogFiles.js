@@ -1,6 +1,7 @@
 export default async function processLogFiles(uploadDir, outputDir, settings) {
     const patterns = await requestRegex(settings);
     console.log(patterns);
+    //TODO:  pseudonymous-id-generator als npm Paket
 }
 
 async function requestRegex(settings) {

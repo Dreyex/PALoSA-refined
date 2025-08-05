@@ -83,6 +83,7 @@ function App() {
 
     return (
         <div className='flex flex-col [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-rose-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-steel-900'>
+            <title> {data.title} </title> 
             <h1 className='text-center p-10 text-8xl font-black text-rose-600'>
                 {" "}
                 {data.title}{" "}
