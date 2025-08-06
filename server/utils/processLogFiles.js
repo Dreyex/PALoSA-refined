@@ -1,7 +1,30 @@
-export default async function processLogFiles(uploadDir, outputDir, settings) {
+import 'dotenv/config';
+import * as fs from 'fs';
+import path from 'path';
+import pseudonymousIdGenerator from 'pseudonymous-id-generator';
+
+
+const anonymizationKey = process.env.ANONYMIZATION_KEY;
+
+export default async function processLogFiles(outputDir, settings) {
     const patterns = await requestRegex(settings);
+    console.log(settings);
     console.log(patterns);
     //TODO:  pseudonymous-id-generator als npm Paket
+    /* fs.readdirSync(outputDir, { withFileTypes: true })
+        .filter(
+            (dirent) =>
+                dirent.isFile() &&
+                !dirent.name.endsWith(".xml") &&
+                !dirent.name.endsWith(".json")
+        )
+        .forEach((dirent) => {
+            const filePath = path.join(outputDir, dirent.name);
+            const fileContent = fs.readFileSync(filePath, "utf-8");
+            const updatedContent = anonymizeContent(fileContent);
+            fs.writeFileSync(filePath, updatedContent, "utf-8");
+            console.log(`Anonymisiert: ${dirent.name}`);
+        }); */
 }
 
 async function requestRegex(settings) {
@@ -40,4 +63,14 @@ async function requestRegex(settings) {
         console.error("Error in requestRegex:", error);
         return [];
     }
+}
+
+async function anonymizeContent(content) {
+    let result = content;
+    patterns.forEach((regex) => {
+        result = result.replace(regex, (match) =>
+            generatePseudonymousId(match, anonymizationKey)
+        );
+    });
+    return result;
 }
