@@ -3,6 +3,8 @@ import "dotenv/config";
 
 const anonymizationKey = process.env.pseudoKey;
 
+//TODO: Refactor this function to Pseudonymize EMail to remain their structure
+//TODO: Refactor this function to Pseudonymize IPs with CryptoPan
 export default async function anonymizeContent(content, patterns) {
     let result = content;
     console.log("Anonymizing content with patterns:", patterns);

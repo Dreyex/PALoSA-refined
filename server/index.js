@@ -64,12 +64,6 @@ app.get("/api", (req, res) => {
     res.json(dataJson);
 });
 
-//TODO: entfernen
-app.get("/api/session-test", (req, res) => {
-    req.session.views = (req.session.views || 0) + 1;
-    res.json({ views: req.session.views });
-});
-
 // Upload-Route
 app.post("/api/upload", upload.array("files"), (req, res) => {
     res.json({
