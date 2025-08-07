@@ -36,7 +36,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // To parse JSON bodies
 
-//TODO: Automatisches aufräumen der Sessions und Löschen alter Dateien
 app.use(
     session({
         secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
@@ -80,12 +79,6 @@ app.get("/api", (req, res) => {
         settingTitles: ["Txt & Log", "JSON", "XML", "Regex Suchmuster"],
     };
     res.json(dataJson);
-});
-
-//TODO: entfernen
-app.get("/api/session-test", (req, res) => {
-    req.session.views = (req.session.views || 0) + 1;
-    res.json({ views: req.session.views });
 });
 
 // Upload-Route
