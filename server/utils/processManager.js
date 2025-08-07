@@ -12,7 +12,8 @@ const __dirname = path.dirname(__filename);
 
 // Process Manager for the Pseudonymization process
 export default async function startProcessManager(sessionId, data)
-{
+{   console.log("Starting process manager for session:", sessionId);
+
     //Setting paths
     console.log("Setting up paths...");
     const uploadDir = path.join(__dirname, '..', "uploads", sessionId, "other");
