@@ -21,7 +21,7 @@ export default async function startProcessManager(sessionId, data)
     //Creating Directorys for Output
     console.log("Creating directorys...");
     await createOutDir("output");
-    await createOutDir(`output/${sessionId}`)
+    await createOutDir(`output/${sessionId}`);
 
     //Merging Settings for Pseudonymization
     console.log("Merging settings...");
@@ -34,7 +34,7 @@ export default async function startProcessManager(sessionId, data)
 
     //Processing Log Files
     console.log("Processing log files...");
-    await processLogFiles(uploadDir, outputDir, data);
+    await processLogFiles(outputDir, data);
 
     console.log("✅ - Process completed");
 }

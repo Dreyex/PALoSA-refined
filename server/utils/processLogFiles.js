@@ -8,8 +8,6 @@ const anonymizationKey = process.env.ANONYMIZATION_KEY;
 
 export default async function processLogFiles(outputDir, settings) {
     const patterns = await requestRegex(settings);
-    console.log(settings);
-    console.log(patterns);
     /* fs.readdirSync(outputDir, { withFileTypes: true })
         .filter(
             (dirent) =>
@@ -42,10 +40,12 @@ async function requestRegex(settings) {
                 : [],
         });
 
+        // Collect Regex patterns from settings
         const collectPatterns = (obj) => ({
             patterns: Array.isArray(obj.patterns) ? obj.patterns : [],
         });
 
+        // Extract checked options and patterns from settings
         const checked = collectChecked(settings.logSettings).checkedOptions;
         const regexes = collectPatterns(settings.regexSettings).patterns;
 
