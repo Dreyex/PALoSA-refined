@@ -10,7 +10,6 @@ export default async function processLogFiles(outputDir, settings) {
     const patterns = await requestRegex(settings);
     console.log(settings);
     console.log(patterns);
-    //TODO:  pseudonymous-id-generator als npm Paket
     /* fs.readdirSync(outputDir, { withFileTypes: true })
         .filter(
             (dirent) =>
