@@ -1,74 +1,32 @@
-import "dotenv/config";
-import * as fs from "fs";
+import fs from "fs";
 import path from "path";
-import pseudonymousIdGenerator from "pseudonymous-id-generator";
-
-const anonymizationKey = process.env.ANONYMIZATION_KEY;
+import requestRegex from "./requestRegex.js";
+import anonymizeContent from "./anonymizeContent.js";
 
 export default async function processLogFiles(outputDir, settings) {
-    const patterns = await requestRegex(settings);
-    fs.readdirSync(outputDir, { withFileTypes: true })
-        .filter(
-            (dirent) =>
-                dirent.isFile() &&
-                !dirent.name.endsWith(".xml") &&
-                !dirent.name.endsWith(".json")
-        )
-        .forEach((dirent) => {
+    console.log("Settings for anonymization:", settings);
+
+    const patterns = await requestRegex(settings, "log");
+    const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
+
+    console.log("Patterns for anonymization:", patterns);
+
+    for (const dirent of dirents) {
+        if (
+            dirent.isFile() &&
+            !dirent.name.endsWith(".xml") &&
+            !dirent.name.endsWith(".json")
+        ) {
             const filePath = path.join(outputDir, dirent.name);
             const fileContent = fs.readFileSync(filePath, "utf-8");
-            const updatedContent = anonymizeContent(fileContent);
+            const updatedContent = await anonymizeContent(
+                fileContent,
+                patterns
+            );
             fs.writeFileSync(filePath, updatedContent, "utf-8");
             console.log(`Anonymisiert: ${dirent.name}`);
-        });
-}
-
-async function requestRegex(settings) {
-    try {
-        // Stored Regex Patterns
-        const regex = {
-            "E-Mail": "([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})",
-            "IP-Adressen":
-                "\\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\b",
-        };
-
-        // Get checked options array from settings
-        const collectChecked = (obj) => ({
-            checkedOptions: Array.isArray(obj.checkedOptions)
-                ? obj.checkedOptions
-                : [],
-        });
-
-        // Collect Regex patterns from settings
-        const collectPatterns = (obj) => ({
-            patterns: Array.isArray(obj.patterns) ? obj.patterns : [],
-        });
-
-        // Extract checked options and patterns from settings
-        const checked = collectChecked(settings.logSettings).checkedOptions;
-        const regexes = collectPatterns(settings.regexSettings).patterns;
-
-        // Build patterns array based on checked options and add all regexes from regexes
-        const patterns = [
-            ...checked
-                .filter((option) => regex.hasOwnProperty(option))
-                .map((option) => regex[option]),
-            ...regexes,
-        ];
-
-        return patterns;
-    } catch (error) {
-        console.error("Error in requestRegex:", error);
-        return [];
+        }
     }
 }
 
-async function anonymizeContent(content) {
-    let result = content;
-    patterns.forEach((regex) => {
-        result = result.replace(regex, (match) =>
-            generatePseudonymousId(match, anonymizationKey)
-        );
-    });
-    return result;
-}
+
