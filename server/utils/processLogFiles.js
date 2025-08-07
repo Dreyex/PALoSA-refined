@@ -1,14 +1,13 @@
-import 'dotenv/config';
-import * as fs from 'fs';
-import path from 'path';
-import pseudonymousIdGenerator from 'pseudonymous-id-generator';
-
+import "dotenv/config";
+import * as fs from "fs";
+import path from "path";
+import pseudonymousIdGenerator from "pseudonymous-id-generator";
 
 const anonymizationKey = process.env.ANONYMIZATION_KEY;
 
 export default async function processLogFiles(outputDir, settings) {
     const patterns = await requestRegex(settings);
-    /* fs.readdirSync(outputDir, { withFileTypes: true })
+    fs.readdirSync(outputDir, { withFileTypes: true })
         .filter(
             (dirent) =>
                 dirent.isFile() &&
@@ -21,7 +20,7 @@ export default async function processLogFiles(outputDir, settings) {
             const updatedContent = anonymizeContent(fileContent);
             fs.writeFileSync(filePath, updatedContent, "utf-8");
             console.log(`Anonymisiert: ${dirent.name}`);
-        }); */
+        });
 }
 
 async function requestRegex(settings) {
