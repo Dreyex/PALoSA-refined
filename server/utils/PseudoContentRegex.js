@@ -2,6 +2,8 @@ import generatePseudonym from "pseudonymous-id-generator";
 import "dotenv/config";
 import isIPv4Address from "./isIPv4Address.js";
 import { CryptoPAn } from "cryptopan";
+import isEmailAddress from "./isEMailAddress.js";
+import pseudonymizeEmail from "./pseudonymizeMail.js";
 
 const anonymizationKey = process.env.pseudoKey;
 
@@ -15,20 +17,23 @@ const cp = new CryptoPAn(Buffer.from(anonymizationKey, "utf-8"));
  */
 export default async function pseudoContentRegex(content, patterns) {
     let result = content;
-    console.log("Anonymizing content with patterns:", patterns);
+    //console.log("Anonymizing content with patterns:", patterns);
 
     const regexes = patterns.map((patternStr) => new RegExp(patternStr, "g"));
-    console.log("Anonymizing content with regexes:", regexes);
+    //console.log("Anonymizing content with regexes:", regexes);
 
     for (const regex of regexes) {
         result = await replaceAsync(result, regex, async (match) => {
             if (await isIPv4Address(match)) {
-                console.log(`Pseudonymizing IPv4 with CryptoPan: ${match}`);
+                //console.log(`Pseudonymizing IPv4 with CryptoPan: ${match}`);
                 const ipBuffer = ipStringToBuffer(match);
                 const pseudonymizedBuffer = cp.pseudonymiseIP(ipBuffer); //IP Adresse pseudonymisieren
                 return bufferToIpString(pseudonymizedBuffer);
+            } else if (await isEmailAddress(match)) {
+                console.log(`Pseudonymizing email address: ${match}`);
+                return await pseudonymizeEmail(match);
             } else {
-                console.log(`Pseudonymizing non-IP match: ${match}`);
+                //console.log(`Pseudonymizing non-IP match: ${match}`);
                 return generatePseudonym(match, anonymizationKey);
             }
         });
@@ -60,9 +65,9 @@ async function replaceAsync(str, regex, asyncFn) {
 
 function ipStringToBuffer(ip) {
     // Zerlegt IPv4-Adresse in 4 Byte
-    return Buffer.from(ip.split('.').map(octet => parseInt(octet, 10)));
+    return Buffer.from(ip.split(".").map((octet) => parseInt(octet, 10)));
 }
 
 function bufferToIpString(buf) {
-    return Array.from(buf).join('.');
+    return Array.from(buf).join(".");
 }
