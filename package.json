@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently --names \"Server,Client\" --prefix-colors \"blue.bold,green.bold\" \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+    "dev": "concurrently --names \"Server,Client\" --prefix-colors \"blue.bold,green.bold\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "install-dependencies": "concurrently --names \"Server,Client,Root\" --prefix-colors \"blue.bold,green.bold,red.bold\" \"npm install --prefix server\" \"npm install --prefix client\" \"npm install\""
   },
   "keywords": ["Pseudonymization", "PALoSA", "Data Protection", "Privacy", "Security", "Compliance"],
   "author": "",
