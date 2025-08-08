@@ -37,5 +37,8 @@ export default async function startProcessManager(sessionId, data)
     console.log("Processing log files...");
     await processLogFiles(outputDir, data);
 
+    console.log("Processing JSON files...");
+    await processJsonFiles(outputDir, data);
+
     console.log("✅ - Process completed");
 }
