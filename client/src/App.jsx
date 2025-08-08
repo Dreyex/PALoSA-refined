@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
 
 //Icons
 
@@ -51,7 +52,8 @@ function App() {
         } catch (err) {
             console.error("Fehler beim Senden der Einstellungen:", err);
             alert(
-                "Fehler beim Senden der Einstellungen. Bitte versuche es erneut.", err
+                "Fehler beim Senden der Einstellungen. Bitte versuche es erneut.",
+                err
             );
         }
     };
@@ -82,65 +84,78 @@ function App() {
         );
 
     return (
-        <div className='flex flex-col [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-rose-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-steel-900'>
-            <title> {data.title} </title> 
-            <h1 className='text-center p-10 text-8xl font-black text-rose-600'>
-                {" "}
-                {data.title}{" "}
-            </h1>
-            <h2 className='text-center text-2xl font-bold'>
-                <span className='text-rose-600'>P</span>seudonymisierungs-
-                <span className='text-rose-600'>A</span>pp für
-                <span className='text-rose-600'> Lo</span>g-Dateien von
-                <span className='text-rose-600'> S</span>erver-
-                <span className='text-rose-600'>A</span>nwendungen
-            </h2>
-            <div className='flex flex-row justify-between w-10/12 mx-auto mt-12'>
-                <SettingField
-                    id='logSettings'
-                    options={["E-Mail", "IP-Adressen"]}
-                    headline={data.settingTitles[0]}
-                    value={settings.logSettings} //übergebener Wert
-                    onChange={handleSettingsChange} //Callback bei Änderung
-                />
-                <SettingField
-                    id='jsonSettings'
-                    showFileInput={true}
-                    showTextInput={true}
-                    options={["Option 1", "Option 2", "Option 3"]}
-                    headline={data.settingTitles[1]}
-                    fileUploadType='json'
-                    value={settings.jsonSettings} //übergebener Wert
-                    onChange={handleSettingsChange} //Callback bei Änderung
-                />
-                <SettingField
-                    id='xmlSettings'
-                    showFileInput={true}
-                    showTextInput={true}
-                    options={["Option 1", "Option 2", "Option 3"]}
-                    headline={data.settingTitles[2]}
-                    fileUploadType='xml'
-                    value={settings.xmlSettings} //übergebener Wert
-                    onChange={handleSettingsChange} //Callback bei Änderung
-                />
-                <SettingField
-                    id='regexSettings'
-                    showTextInput={true}
-                    headline={data.settingTitles[3]}
-                    comment='Für alle Dateien'
-                    value={settings.regexSettings} //übergebener Wert
-                    onChange={handleSettingsChange} //Callback bei Änderung
-                />
+        <>
+            <Helmet>
+                <title> {data.title} </title>
+                <link rel='icon' href='\favicon.ico'></link>
+            </Helmet>
+            <div className='flex flex-col [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-rose-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-steel-900'>
+                <h1 className='flex items-center justify-center p-10 text-8xl font-black text-rose-600'>
+                    <img
+                        src='/logo.svg'
+                        alt='Logo von PALoSA'
+                        className='mr-6 h-24 w-24'
+                    />
+                    {data.title}
+                </h1>
+                <h2 className='text-center text-2xl font-bold'>
+                    <span className='text-rose-600'>P</span>seudonymisierungs-
+                    <span className='text-rose-600'>A</span>pp für
+                    <span className='text-rose-600'> Lo</span>g-Dateien von
+                    <span className='text-rose-600'> S</span>erver-
+                    <span className='text-rose-600'>A</span>nwendungen
+                </h2>
+                <div className='flex flex-row justify-between w-10/12 mx-auto mt-12'>
+                    <SettingField
+                        id='logSettings'
+                        options={["Option 1", "Option 2", "Option 3"]}
+                        headline={data.settingTitles[0]}
+                        value={settings.logSettings} //übergebener Wert
+                        onChange={handleSettingsChange} //Callback bei Änderung
+                    />
+                    <SettingField
+                        id='jsonSettings'
+                        showFileInput={true}
+                        showTextInput={true}
+                        options={["Option 1", "Option 2", "Option 3"]}
+                        headline={data.settingTitles[1]}
+                        fileUploadType='json'
+                        value={settings.jsonSettings} //übergebener Wert
+                        onChange={handleSettingsChange} //Callback bei Änderung
+                    />
+                    <SettingField
+                        id='xmlSettings'
+                        showFileInput={true}
+                        showTextInput={true}
+                        options={["Option 1", "Option 2", "Option 3"]}
+                        headline={data.settingTitles[2]}
+                        fileUploadType='xml'
+                        value={settings.xmlSettings} //übergebener Wert
+                        onChange={handleSettingsChange} //Callback bei Änderung
+                    />
+                    <SettingField
+                        id='regexSettings'
+                        showTextInput={true}
+                        headline={data.settingTitles[3]}
+                        comment='Für alle Dateien'
+                        value={settings.regexSettings} //übergebener Wert
+                        onChange={handleSettingsChange} //Callback bei Änderung
+                    />
+                </div>
+                <div className='mt-12'>
+                    <FileUploadCard fileUploadType='other' />
+                </div>
+                <div className='mt-12 mx-auto text-center'>
+                    <Button
+                        variant='danger'
+                        className='font-extrabold text-2xl'
+                        onClick={handleSubmit}
+                    >
+                        Pseudonymisieren
+                    </Button>
+                </div>
             </div>
-            <div className='mt-12'>
-                <FileUploadCard fileUploadType='other' />
-            </div>
-            <div className='mt-12 mx-auto text-center'>
-                <Button variant='danger' className='font-extrabold text-2xl' onClick={handleSubmit}>
-                    Pseudonymisieren
-                </Button>
-            </div>
-        </div>
+        </>
     );
 }
 

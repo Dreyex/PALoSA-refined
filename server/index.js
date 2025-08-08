@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
+import fsExtra from "fs-extra";
+
 
 //Sessions
 import session from "express-session";
@@ -9,6 +11,22 @@ import session from "express-session";
 import multer from "multer";
 //utils
 import startProcessManager from "./utils/processManager.js";
+
+const dir1 = path.join(process.cwd(), "uploads");
+const dir2 = path.join(process.cwd(), "output");
+
+// Ensure directories exist and clean them up
+if (!fs.existsSync(dir1)) {
+    fs.mkdirSync(dir1, { recursive: true });
+}
+fsExtra.emptyDirSync(dir1);
+console.log(`Directory cleaned: ${dir1}`);
+
+if (!fs.existsSync(dir2)) {
+    fs.mkdirSync(dir2, { recursive: true });
+}
+fsExtra.emptyDirSync(dir2);
+console.log(`Directory cleaned: ${dir2}`);
 
 // Initialize app
 const app = express();
@@ -18,7 +36,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // To parse JSON bodies
 
-//TODO: Automatisches aufräumen der Sessions und Löschen alter Dateien
 app.use(
     session({
         secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
