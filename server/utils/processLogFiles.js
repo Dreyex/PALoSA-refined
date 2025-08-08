@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import requestRegex from "./requestRegex.js";
-import anonymizeContent from "./anonymizeContent.js";
+import pseudoContentRegex from "./PseudoContentRegex.js";
 
 export default async function processLogFiles(outputDir, settings) {
     console.log("Settings for anonymization:", settings);
@@ -19,7 +19,7 @@ export default async function processLogFiles(outputDir, settings) {
         ) {
             const filePath = path.join(outputDir, dirent.name);
             const fileContent = fs.readFileSync(filePath, "utf-8");
-            const updatedContent = await anonymizeContent(
+            const updatedContent = await pseudoContentRegex(
                 fileContent,
                 patterns
             );
