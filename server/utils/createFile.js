@@ -20,11 +20,6 @@ export async function createFile(directory, filename, filetype, content = "") {
 
     // Datei schreiben (überschreibt, falls existiert)
     await writeFile(fullPath, content);
-    console.log(`Datei erstellt: ${fullPath}`);
+    //console.log(`Datei erstellt: ${fullPath}`);
 }
 
-// Beispielaufruf (auskommentieren, falls als Library benutzt)
-/*
-createFile('./test', 'beispiel', 'txt', 'Das ist der Dateitext!')
-  .catch(console.error);
-*/

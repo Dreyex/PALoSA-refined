@@ -1,13 +1,13 @@
 {
-  "name": "portfolio",
+  "name": "PALoSA-refined",
   "version": "1.0.0",
-  "description": "Get started by customizing your environment (defined in the .idx/dev.nix file) with the tools and IDE extensions you'll need for your project!",
+  "description": "PALoSA in a new and improved version",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+    "dev": "concurrently --names \"Server,Client\" --prefix-colors \"blue.bold,green.bold\" \"npm run dev --prefix server\" \"npm run dev --prefix client\""
   },
-  "keywords": [],
+  "keywords": ["Pseudonymization", "PALoSA", "Data Protection", "Privacy", "Security", "Compliance"],
   "author": "",
   "license": "ISC",
   "dependencies": {

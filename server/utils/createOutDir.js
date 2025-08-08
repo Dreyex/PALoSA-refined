@@ -8,7 +8,12 @@ const __dirname = path.dirname(__filename);
 export default async function createOutDir(dirPath) {
     // dirPath is relative to server/ directory
     const outputDir = path.join(__dirname, '..', dirPath);
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+    try {
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+    } catch (err) {
+        console.error(`Failed to create directory ${outputDir}:`, err);
+        throw err;
     }
 }
