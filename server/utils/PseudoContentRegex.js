@@ -12,8 +12,12 @@ const cp = new CryptoPAn(Buffer.from(anonymizationKey, "utf-8"));
 
 /**
  * Anonymisiert Inhalte basierend auf den gegebenen Regex-Patterns.
- * - Wenn der Match eine IPv4-Adresse ist → CryptoPan Maskierung
- * - Andernfalls → pseudonymous-id-generator
+ * - IPv4-Adressen werden mit CryptoPan maskiert.
+ * - Email-Adressen werden mit einer Pseudonymisierungsmethode anonymisiert.
+ * - Sonstige Matches werden mit pseudonymous-id-generator pseudonymisiert.
+ * @param {string} content - Der Ausgangsinhalt, der anonymisiert werden soll.
+ * @param {string[]} patterns - Ein Array von Regex-Pattern-Strings zur Bestimmung der zu anonymisierenden Inhalte.
+ * @returns {Promise<string>} result - Der anonymisierte Inhalt.
  */
 export default async function pseudoContentRegex(content, patterns) {
     let result = content;
@@ -41,6 +45,14 @@ export default async function pseudoContentRegex(content, patterns) {
     return result;
 }
 
+/**
+ * Ersetzt asynchron alle Matches eines regulären Ausdrucks in einem String
+ * durch den Rückgabewert einer asynchronen Callback-Funktion.
+ * @param {string} str - Der Eingabe-String.
+ * @param {RegExp} regex - Der reguläre Ausdruck, der zu matchende Teile findet.
+ * @param {(match: string) => Promise<string>} asyncFn - Die asynchrone Funktion, die jeden Match ersetzt.
+ * @returns {Promise<string>} - Der veränderte String nach den Ersetzungen.
+ */
 async function replaceAsync(str, regex, asyncFn) {
     const matches = [];
     str.replace(regex, (match, ...args) => {
@@ -63,11 +75,21 @@ async function replaceAsync(str, regex, asyncFn) {
     return pieces.join("");
 }
 
+/**
+ * Konvertiert eine IPv4-Adresse als String in einen Buffer mit 4 Bytes.
+ * @param {string} ip - Die IPv4-Adresse im Format "x.x.x.x".
+ * @returns {Buffer} - Ein Buffer, der die vier Bytes der IP-Adresse enthält.
+ */
 function ipStringToBuffer(ip) {
     // Zerlegt IPv4-Adresse in 4 Byte
     return Buffer.from(ip.split(".").map((octet) => parseInt(octet, 10)));
 }
 
+/**
+ * Konvertiert einen Buffer mit 4 Bytes zurück zu einer IPv4-Adresse als String.
+ * @param {Buffer} buf - Ein Buffer mit vier Bytes.
+ * @returns {string} - Die rekonstruierte IPv4-Adresse im Format "x.x.x.x".
+ */
 function bufferToIpString(buf) {
     return Array.from(buf).join(".");
 }
