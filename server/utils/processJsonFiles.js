@@ -159,6 +159,13 @@ async function traverseAndProcess(obj, keyToFind, callback) {
     }
 }
 
+/**
+ * Ruft den Wert aus einem verschachtelten Objekt anhand eines Pfades mit Punktnotation ab.
+ *
+ * @param {Object} obj - Das Objekt, aus dem der Wert ausgelesen werden soll.
+ * @param {string} path - Der Pfad zum Wert im Objekt, als Punkt-getrennener String (z.B. "adresse.strasse.hausnummer").
+ * @returns {*} - Der Wert am angegebenen Pfad oder undefined, falls der Pfad nicht existiert.
+ */
 function getByPath(obj, path) {
     const segments = path.split(".");
     let current = obj;
@@ -172,6 +179,14 @@ function getByPath(obj, path) {
     return current;
 }
 
+/**
+ * Setzt einen Wert in einem verschachtelten Objekt anhand eines Pfades mit Punktnotation.
+ * Achtung: Falls Zwischenobjekte auf dem Pfad nicht existieren, werden diese neu als leere Objekte angelegt.
+ *
+ * @param {Object} obj - Das Objekt, in dem der Wert gesetzt werden soll.
+ * @param {string} path - Der Pfad zum zu setzenden Wert im Objekt, als Punkt-getrennener String (z.B. "adresse.strasse.hausnummer").
+ * @param {*} value - Der Wert, der am Pfad gesetzt werden soll.
+ */
 function setByPath(obj, path, value) {
     const keys = path.split(".");
     let current = obj;
