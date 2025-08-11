@@ -4,6 +4,7 @@ import isIPv4Address from "./isIPv4Address.js";
 import { CryptoPAn } from "cryptopan";
 import isEmailAddress from "./isEMailAddress.js";
 import pseudonymizeEmail from "./pseudonymizeMail.js";
+import { ipStringToBuffer, bufferToIpString } from "./ipBuffer.js"
 
 const anonymizationKey = process.env.pseudoKey;
 
@@ -22,7 +23,8 @@ const cp = new CryptoPAn(Buffer.from(anonymizationKey, "utf-8"));
 export default async function pseudoContentRegex(content, patterns) {
     let result = content;
     //console.log("Anonymizing content with patterns:", patterns);
-
+    //console.log("Content:", content);
+    //console.log("Result:", result);
     const regexes = patterns.map((patternStr) => new RegExp(patternStr, "g"));
     //console.log("Anonymizing content with regexes:", regexes);
 
@@ -42,6 +44,7 @@ export default async function pseudoContentRegex(content, patterns) {
             }
         });
     }
+    //console.log(result);
     return result;
 }
 
@@ -75,21 +78,4 @@ async function replaceAsync(str, regex, asyncFn) {
     return pieces.join("");
 }
 
-/**
- * Konvertiert eine IPv4-Adresse als String in einen Buffer mit 4 Bytes.
- * @param {string} ip - Die IPv4-Adresse im Format "x.x.x.x".
- * @returns {Buffer} - Ein Buffer, der die vier Bytes der IP-Adresse enthält.
- */
-function ipStringToBuffer(ip) {
-    // Zerlegt IPv4-Adresse in 4 Byte
-    return Buffer.from(ip.split(".").map((octet) => parseInt(octet, 10)));
-}
 
-/**
- * Konvertiert einen Buffer mit 4 Bytes zurück zu einer IPv4-Adresse als String.
- * @param {Buffer} buf - Ein Buffer mit vier Bytes.
- * @returns {string} - Die rekonstruierte IPv4-Adresse im Format "x.x.x.x".
- */
-function bufferToIpString(buf) {
-    return Array.from(buf).join(".");
-}

@@ -1,6 +1,7 @@
 import mergeSettings from "./mergeSettings.js";
 import createOutDir from "./createOutDir.js";
 import processLogFiles from "./processLogFiles.js";
+import processJsonFiles from "./processJsonFiles.js";
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -16,7 +17,7 @@ export default async function startProcessManager(sessionId, data)
 
     //Setting paths
     console.log("Setting up paths...");
-    const uploadDir = path.join(__dirname, '..', "uploads", sessionId, "other");
+    const uploadDir = path.join(__dirname, '..', "uploads", sessionId);
     const outputDir = path.join(__dirname, '..', "output", sessionId);
 
     //Creating Directorys for Output
@@ -38,7 +39,7 @@ export default async function startProcessManager(sessionId, data)
     await processLogFiles(outputDir, data);
 
     console.log("Processing JSON files...");
-    await processJsonFiles(outputDir, data);
+    await processJsonFiles(uploadDir, outputDir, data);
 
     console.log("✅ - Process completed");
 }
