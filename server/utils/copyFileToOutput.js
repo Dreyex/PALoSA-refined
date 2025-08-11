@@ -5,6 +5,7 @@ import generateFileName from "./generateFileName.js";
 
 export default async function copyFileToOutput(uploadDir, outputDir) {
     try {
+        uploadDir = path.join(uploadDir, "other");
         // Ensure the output and upload directories exist
         if (!fs.existsSync(uploadDir)) {
             console.error(`Upload directory does not exist: ${uploadDir}`);
