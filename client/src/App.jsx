@@ -108,7 +108,7 @@ function App() {
                 <div className='flex flex-row justify-between w-10/12 mx-auto mt-12'>
                     <SettingField
                         id='logSettings'
-                        options={["Option 1", "Option 2", "Option 3"]}
+                        options={["E-Mail", "IP-Adressen"]} //Muss mit server/utils/requestRegex.js übereinstimmen
                         headline={data.settingTitles[0]}
                         value={settings.logSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung

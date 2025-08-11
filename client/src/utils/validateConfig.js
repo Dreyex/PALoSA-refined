@@ -18,11 +18,7 @@ const schema = {
                     sources: {
                         type: "array",
                         items: {
-                            type: "array",
-                            items: {
-                                type: "string",
-                            },
-                            minItems: 1, // Mindestens ein String im Array!
+                            type: "string", // Hier: Punktnotation-Pfade als Strings
                         },
                     },
                     separator: {

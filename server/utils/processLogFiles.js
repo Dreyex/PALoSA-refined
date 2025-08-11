@@ -1,15 +1,15 @@
 import fs from "fs";
 import path from "path";
 import requestRegex from "./requestRegex.js";
-import pseudoContentRegex from "./PseudoContentRegex.js";
+import pseudoContentRegex from "./pseudoContentRegex.js";
 
 export default async function processLogFiles(outputDir, settings) {
-    console.log("Settings for anonymization:", settings);
+    //console.log("Settings for anonymization:", settings);
 
     const patterns = await requestRegex(settings, "log");
     const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
 
-    console.log("Patterns for anonymization:", patterns);
+    //console.log("Patterns for anonymization:", patterns);
 
     for (const dirent of dirents) {
         if (
@@ -28,5 +28,3 @@ export default async function processLogFiles(outputDir, settings) {
         }
     }
 }
-
-
