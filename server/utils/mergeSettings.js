@@ -13,13 +13,11 @@ export default async function mergeSettings(sessionId, settings, type) {
             files = await fs.readdir(dirPath);
             fileName = files[0];
         } catch (err) {
-            if(err.code === "ENOENT")
-            {
+            if (err.code === "ENOENT") {
                 const content = `{ "sources": [], "derived": {} }`;
                 await createFile(dirPath, "config", "json", content); //erstellt auch die Directory
                 fileName = "config.json";
-            }
-            else {
+            } else {
                 throw err;
             }
         }
@@ -82,6 +80,10 @@ export default async function mergeSettings(sessionId, settings, type) {
             JSON.stringify(jsonData, null, 2),
             "utf-8"
         );
+        
+        //9. Datei umbenennen
+        const newPath = path.join(dirPath, "config.json");
+        await fs.rename(filePath, newPath);
 
         //console.log( `Settings erfolgreich in Datei ${fileName} im Ordner ${type} für Session ${sessionId} gemerged.`);
     } catch (err) {
