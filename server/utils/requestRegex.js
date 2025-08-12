@@ -1,3 +1,28 @@
+/**
+ * Ermittelt und gibt ein Array von regulären Ausdrücken (Regex-Mustern) zurück, 
+ * basierend auf den bereitgestellten Einstellungen und dem Verarbeitungstyp.
+ * 
+ * Unterstützte Anwendungsfälle:
+ * - **Log-Dateien** (`type === "log"`): Kombination aus vordefinierten Regex-Mustern und benutzerdefinierten Mustern.
+ * - **Andere Typen** (z. B. XML, JSON): Nur benutzerdefinierte Regex-Muster aus den Einstellungen.
+ * 
+ * Verfügbare vordefinierte Regex-Typen:
+ * - `"E-Mail"`: E-Mail-Adressen im Format `user@domain.tld`
+ * - `"IP-Adressen"`: IPv4-Adressen im Format `xxx.xxx.xxx.xxx`
+ * 
+ * @async
+ * @function requestRegex
+ * @param {Object} settings - Einstellungsobjekt mit möglichen Schlüsseln:
+ * @param {Object} [settings.logSettings] - Enthält `checkedOptions` (Array von Strings), welche vordefinierte Regex-Typen aktivieren.
+ * @param {string[]} [settings.logSettings.checkedOptions] - Ausgewählte vordefinierte Regex-Kategorien wie `"E-Mail"` oder `"IP-Adressen"`.
+ * @param {Object} [settings.regexSettings] - Enthält ein `patterns`-Array mit benutzerdefinierten Regex-Strings.
+ * @param {string[]} [settings.regexSettings.patterns] - Benutzerdefinierte reguläre Ausdrücke.
+ * @param {string} type - Der Verarbeitungstyp, z. B. `"log"`, `"xml"` oder `"json"`. 
+ * 
+ * @returns {Promise<string[]>} Ein Array mit allen ermittelten regulären Ausdrücken als Strings.
+ * 
+ * @throws {Error} Wenn bei der Verarbeitung der Einstellungen ein Fehler auftritt.
+ */
 export default async function requestRegex(settings, type) {
     console.log("Requesting regex patterns for type:", type);
     console.log("Settings provided:", settings);
