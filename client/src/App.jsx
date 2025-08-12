@@ -7,6 +7,7 @@ import { Helmet } from "react-helmet";
 import FileUploadCard from "./components/FileUploadCard";
 import SettingField from "./components/SettingField";
 import Button from "./components/ui/Button";
+import Aurora from "./components/ui/Aurora";
 
 function App() {
     const [data, setData] = useState(null);
@@ -156,6 +157,12 @@ function App() {
                 <title> {data.title} </title>
                 <link rel='icon' href='\favicon.ico'></link>
             </Helmet>
+            <Aurora
+                colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+                blend={0.5}
+                amplitude={1.0}
+                speed={0.5}
+            />
             <div className='flex flex-col [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-rose-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-steel-900'>
                 <h1 className='flex items-center justify-center p-10 text-8xl font-black text-rose-600'>
                     <img
@@ -172,7 +179,7 @@ function App() {
                     <span className='text-rose-600'> S</span>erver-
                     <span className='text-rose-600'>A</span>nwendungen
                 </h2>
-                <div className='flex flex-row justify-between w-10/12 mx-auto mt-12'>
+                <div className='justify-between w-auto mx-auto mt-12 grid grid-cols-1 2xl:grid-cols-4 gap-4 space-x-16 s:grid-cols-2'>
                     <SettingField
                         id='logSettings'
                         options={["E-Mail", "IP-Adressen"]} //Muss mit server/utils/requestRegex.js übereinstimmen
@@ -199,7 +206,7 @@ function App() {
                         fileUploadType='xml'
                         value={settings.xmlSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
-                        comment="Work In Progress / Ohne Funktion"
+                        comment='Work In Progress / Ohne Funktion'
                     />
                     <SettingField
                         id='regexSettings'
@@ -211,7 +218,10 @@ function App() {
                     />
                 </div>
                 <div className='mt-12'>
-                    <FileUploadCard fileUploadType='other' onUploadStatusChange={setHasUploads}/>
+                    <FileUploadCard
+                        fileUploadType='other'
+                        onUploadStatusChange={setHasUploads}
+                    />
                 </div>
                 <div className='mt-12 mx-auto text-center'>
                     <Button
@@ -223,7 +233,7 @@ function App() {
                         Pseudonymisieren
                     </Button>
                 </div>
-                <div className='mt-12 mx-auto text-center space-x-4'>
+                <div className='mt-12 mx-auto text-center space-x-4 mb-7'>
                     <Button
                         variant='default'
                         className='font-bold text-1xl'

@@ -25,7 +25,7 @@ export default function TextPatternInput({value = [], onChange}) {
 
     return (
         <div>
-            <div className='flex items-center space-x-2 mb-4'>
+            <div className='flex items-center space-x-2 mb-8'>
                 <input
                     type='text'
                     className='bg-eclipse-800 rounded-sm p-2 flex-grow'
