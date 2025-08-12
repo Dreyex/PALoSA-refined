@@ -12,6 +12,7 @@ function App() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [sessionId, setSessionId] = useState(null);
 
     const [settings, setSettings] = useState({
         logSettings: { checkedOptions: [] },
@@ -58,8 +59,66 @@ function App() {
         }
     };
 
+    // Methode zum Download der ZIP-Datei für eine bestimmte Session
+    async function handleDownload() {
+        try {
+            const response = await fetch(`/api/download/${sessionId}`, {
+                method: "GET",
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `Download fehlgeschlagen: ${response.statusText}`
+                );
+            }
+
+            // Datei als Blob herunterladen
+            const blob = await response.blob();
+
+            // Link zum Starten des Dateidownloads erzeugen
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `pseudo-files.zip`; // Dateiname für den Download
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            console.log("Download erfolgreich gestartet.");
+        } catch (error) {
+            console.error("Fehler beim Download:", error);
+        }
+    }
+
+    // Methode zum Aufruf der Cleanup API für eine Session
+    async function handleCleanup() {
+        try {
+            console.log(sessionId);
+            const response = await fetch(`/api/clean/${sessionId}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(
+                    `Cleanup fehlgeschlagen: ${response.statusText}`
+                );
+            }
+
+            const result = await response.json();
+            console.log("Cleanup erfolgreich:", result);
+            alert("Bereinigung und Session-Zerstörung erfolgreich.");
+        } catch (error) {
+            console.error("Fehler bei der Bereinigung:", error);
+            alert("Fehler bei der Bereinigung. Siehe Konsole.");
+        }
+    }
+
     useEffect(() => {
-        // The vite proxy will redirect this to http://localhost:3001/api/portfolio
+        // The vite proxy will redirect this to http://localhost:3001/api
         fetch("/api")
             .then((response) => {
                 if (!response.ok) {
@@ -69,6 +128,7 @@ function App() {
             })
             .then((data) => {
                 setData(data);
+                setSessionId(data.sessionId);
                 setLoading(false);
             })
             .catch((error) => {
@@ -152,6 +212,23 @@ function App() {
                         onClick={handleSubmit}
                     >
                         Pseudonymisieren
+                    </Button>
+                    
+                </div>
+                <div className='mt-12 mx-auto text-center'>
+                    <Button
+                        variant='default'
+                        className='font-bold text-1xl'
+                        onClick={handleDownload}
+                    >
+                        Download
+                    </Button>
+                    <Button
+                        variant='default'
+                        className='font-bold text-1xl'
+                        onClick={handleCleanup}
+                    >
+                        Cleanup
                     </Button>
                 </div>
             </div>
