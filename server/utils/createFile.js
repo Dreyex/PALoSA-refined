@@ -3,11 +3,21 @@ import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
 
 /**
- * Erstellt eine Datei mit gewünschtem Typ, Namen und Pfad.
- * @param {string} directory - Zielverzeichnis.
- * @param {string} filename - Dateiname ohne Erweiterung.
- * @param {string} filetype - Dateityp/Erweiterung (z.B. 'txt', 'json' ...).
- * @param {string} [content] - (Optional) Dateiinhalt.
+ * Erstellt eine neue Datei im angegebenen Verzeichnis und schreibt den übergebenen Inhalt hinein.
+ * 
+ * Falls das Zielverzeichnis nicht existiert, wird es rekursiv erstellt.  
+ * Wenn die Datei bereits vorhanden ist, wird ihr Inhalt überschrieben.
+ * 
+ * @async
+ * @function createFile
+ * @param {string} directory - Pfad zum Zielverzeichnis, in dem die Datei erstellt werden soll.
+ * @param {string} filename - Name der Datei ohne Dateiendung.
+ * @param {string} filetype - Dateiendung (z. B. `"txt"` oder `".txt"`). Falls mit Punkt angegeben, wird dieser entfernt.
+ * @param {string} [content=""] - Der Inhalt, der in die Datei geschrieben wird (Standard: leerer String).
+ * 
+ * @returns {Promise<void>} Gibt keinen Wert zurück. Erstellt oder überschreibt die Datei.
+ * 
+ * @throws {Error} Falls das Erstellen des Verzeichnisses oder das Schreiben in die Datei fehlschlägt.
  */
 export async function createFile(directory, filename, filetype, content = "") {
     // Falls filetype mit Punkt übergeben wird: ".txt" → "txt"

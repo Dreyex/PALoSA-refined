@@ -3,6 +3,26 @@ import fs from 'fs';
 import path from "path";
 import generateFileName from "./generateFileName.js";
 
+/**
+ * Kopiert alle Dateien aus dem `other`-Ordner des Upload-Verzeichnisses 
+ * in das Output-Verzeichnis und fügt jedem Dateinamen den Suffix `"-pseudo"` hinzu.
+ * 
+ * **Ablauf:**
+ * 1. Ergänzt `uploadDir` um den Unterordner `"other"`.
+ * 2. Prüft, ob Upload- und Output-Ordner existieren (ansonsten Abbruch mit Logmeldung).
+ * 3. Liest alle Dateien aus dem Upload-Unterordner.
+ * 4. Für jede Datei:
+ *    - Erzeugt einen neuen Dateinamen mit {@link generateFileName}.
+ *    - Kopiert die Datei ins Output-Verzeichnis.
+ * 5. Verzeichnisse oder leere Inhalte werden übersprungen.
+ * 
+ * @async
+ * @function copyFileToOutput
+ * @param {string} uploadDir - Pfad zum Session-Upload-Verzeichnis (ohne `"other"`-Suffix).
+ * @param {string} outputDir - Pfad zum Session-Output-Verzeichnis.
+ * 
+ * @returns {Promise<void>} Kein Rückgabewert – Dateien werden direkt ins Output-Verzeichnis geschrieben.
+ */
 export default async function copyFileToOutput(uploadDir, outputDir) {
     try {
         uploadDir = path.join(uploadDir, "other");

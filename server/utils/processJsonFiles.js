@@ -12,11 +12,35 @@ import { CryptoPAn } from "cryptopan"; // Beispielhaft
 dotenv.config();
 
 /**
- * Verarbeitet und anonymisiert alle JSON-Dateien im outputDir-Verzeichnis.
+ * Verarbeitet und pseudonymisiert alle JSON-Dateien im angegebenen Ausgabeordner.
+ * 
+ * Der Ablauf umfasst mehrere Schritte:
+ * 
+ * 1. **Regex-Muster ermitteln** – Ermittelt reguläre Ausdrücke für den Typ `"other"` aus den `settings`
+ *    mittels {@link requestRegex}, um später textbasierte Inhalte zu anonymisieren.
+ * 2. **Config laden** – Liest `config.json` aus dem `uploadDir/json`, um:
+ *    - `derivedFields` (abgeleitete Felder) zu bestimmen.
+ *    - `sources` (Quellenfelder für gezielte Feld-Pseudonymisierung) zu ermitteln.
+ * 3. **Source-Felder pseudonymisieren** – Durchläuft das JSON mit {@link processConfigSources},
+ *    um gezielt Felder aus `sources` zu anonymisieren (IPs, E-Mails, etc.).
+ * 4. **Derived-Felder erzeugen** – Verwendet {@link processConfigDerived}, um Felder aus mehreren
+ *    Quellen zusammenzuführen und ggf. zu pseudonymisieren.
+ * 5. **Regex-Pseudonymisierung auf gesamten JSON-String anwenden** – Nutzt {@link pseudoContentRegex},
+ *    um den kompletten JSON-String nach den ermittelten Patterns zu durchsuchen und zu anonymisieren.
+ * 6. **Ergebnisse zurückschreiben** – Überschreibt die Originaldatei im Ausgabeverzeichnis.
+ * 
  * @async
- * @param {string} uploadDir - Pfad zum Session-Upload-Verzeichnis.
- * @param {string} outputDir - Pfad zum Output-Verzeichnis.
- * @param {object} settings - Einstellungen zur Regex-Erstellung.
+ * @function processJsonFiles
+ * @param {string} uploadDir - Pfad zum Upload-Verzeichnis (enthält ggf. `json/config.json`).
+ * @param {string} outputDir - Pfad zum Ausgabeverzeichnis, in dem die zu anonymisierenden JSON-Dateien liegen.
+ * @param {Object} settings - Einstellungen für die Verarbeitung, z. B. Regex-Definitionen.
+ * @param {Object} [settings.regexSettings] - Optional: Benutzerdefinierte Regex-Muster.
+ * @param {Object} [settings.logSettings] - Optional: Aktivierte Standard-Muster (nicht typabhängig).
+ * 
+ * @returns {Promise<void>} Gibt keinen Wert zurück, verarbeitet jedoch alle passenden JSON-Dateien im Verzeichnis.
+ * 
+ * @throws {Error} Falls die Pseudonymisierung fehlschlägt oder eine Hilfsfunktion (z. B. {@link pseudoContentRegex}) 
+ *                 keinen String zurückgibt.
  */
 export default async function processJsonFiles(uploadDir, outputDir, settings) {
     const patterns = await requestRegex(settings, "other");
@@ -70,12 +94,29 @@ export default async function processJsonFiles(uploadDir, outputDir, settings) {
 }
 
 /**
- * Pseudonymisiert Werte aus Sources-Feldern in der Konfigurationsdatei.
+ * Pseudonymisiert gezielt bestimmte Felder in einer JSON-Datenstruktur basierend auf
+ * einer Konfiguration aus der Datei `config.json` im Upload-Verzeichnis.
+ * 
+ * Die Funktion liest die Konfigurationsdatei, ermittelt eine Liste von Feldnamen (`sources`) 
+ * und durchläuft rekursiv das JSON-Objekt, um Werte dieser Felder zu ersetzen:
+ * 
+ * - **IPv4-Adressen** → deterministische Pseudonymisierung mithilfe von CryptoPAn.
+ * - **E-Mail-Adressen** → Pseudonymisierung mit {@link pseudonymizeEmail}.
+ * - **Alle anderen Werte** → Generische Pseudonymisierung mit {@link generatePseudonym}.
+ * 
+ * Intern verwendet die Funktion {@link traverseAndProcess}, um die relevanten Felder 
+ * tiefenrekursiv zu finden und zu bearbeiten.
+ * 
  * @async
- * @param {object} params - Objekt mit notwendigen Parametern.
- * @param {string} params.uploadDir - Pfad zum Upload-Verzeichnis der Session.
- * @param {object} params.jsonData - Zu anonymisierendes JSON-Objekt.
- * @returns {object} - JSON-Objekt mit pseudonymisierten Source-Feldern.
+ * @function processConfigSources
+ * @param {Object} params - Parameterobjekt.
+ * @param {string} params.uploadDir - Pfad zum Upload-Verzeichnis, in dem `json/config.json` erwartet wird.
+ * @param {Object} params.jsonData - Das zu pseudonymisierende JSON-Objekt.
+ * 
+ * @returns {Promise<Object>} Das pseudonymisierte JSON-Objekt.
+ * 
+ * @throws {Error} Wenn das Lesen oder Parsen der `config.json` fehlschlägt, 
+ *                 oder wenn die Pseudonymisierung für ein Feld nicht durchgeführt werden kann.
  */
 async function processConfigSources({ uploadDir, jsonData }) {
     const configPath = path.join(uploadDir, "json", "config.json");
@@ -111,12 +152,24 @@ async function processConfigSources({ uploadDir, jsonData }) {
 }
 
 /**
- * Überträgt abgeleitete Feldwerte gemäß der Konfiguration,
- * wobei sowohl der Ziel-Key als auch die Quellen-Pfade als Punktnotation-Strings angegeben werden.
- * @param {object} params
- * @param {object} params.jsonData
- * @param {object} params.derivedFields - Key = Ziel-Pfadstring; Value = { sources: Array von Pfadstrings, separator: String }
- * @returns {object} jsonData mit gesetzten Derived-Feldern
+ * Erzeugt oder aktualisiert abgeleitete Felder in einem JSON-Objekt basierend auf einer Konfigurationsdefinition.
+ * 
+ * Die Funktion erlaubt es, mehrere Quellwerte (`sources`) aus dem JSON zu lesen,
+ * diese zu einem neuen Feld zusammenzuführen und optional durch einen Separator zu trennen.
+ * 
+ * Wenn keine der angegebenen Quellen Daten enthält, wird das Ziel mit `null` belegt.
+ * Intern nutzt die Funktion {@link getByPath} zum Auslesen verschachtelter Werte 
+ * und {@link setByPath} zum Setzen der Zielwerte.
+ * 
+ * @function processConfigDerived
+ * @param {Object} params - Parameterobjekt.
+ * @param {Object} params.jsonData - Das zu verarbeitende JSON-Objekt, in dem neue Felder erstellt oder vorhandene aktualisiert werden.
+ * @param {Object} params.derivedFields - Konfiguration für die abzuleitenden Felder.
+ * @param {Object} params.derivedFields[<targetKey>] - Definition eines Derived Fields.
+ * @param {string[]} params.derivedFields[<targetKey>].sources - Liste von Pfaden (`dot notation`) zu den Quellfeldern.
+ * @param {string} [params.derivedFields[<targetKey>].separator=""] - Trennzeichen zwischen den zusammengeführten Quellwerten (Standard: leer).
+ * 
+ * @returns {Object} Das bearbeitete JSON-Objekt mit den hinzugefügten oder aktualisierten Derived Fields.
  */
 function processConfigDerived({ jsonData, derivedFields }) {
     for (const [targetKey, config] of Object.entries(derivedFields)) {
@@ -136,14 +189,29 @@ function processConfigDerived({ jsonData, derivedFields }) {
 }
 
 /**
- * Durchläuft rekursiv ein Objekt und ruft für jeden Schlüssel, der mit `keyToFind` übereinstimmt, eine asynchrone Callbackfunktion auf.
+ * Durchläuft ein Objekt rekursiv und führt für alle Vorkommen eines bestimmten Schlüssels 
+ * (`keyToFind`) eine asynchrone Callback-Funktion aus.
+ * 
+ * Diese Funktion ist besonders nützlich, um verschachtelte Datenstrukturen 
+ * (z. B. JSON-Objekte) zu durchsuchen und gezielt Werte zu verarbeiten oder zu verändern.
+ * 
+ * **Funktionsweise:**
+ * 1. Überprüft, ob das aktuelle Element ein Objekt ist.
+ * 2. Iteriert über alle Schlüssel im aktuellen Objekt.
+ * 3. Falls der Schlüssel mit `keyToFind` übereinstimmt und der Wert **nicht null oder undefined** ist, 
+ *    wird der Callback asynchron ausgeführt und auf dessen Abschluss gewartet.
+ * 4. Falls der aktuelle Wert selbst ein Objekt ist, wird die Funktion rekursiv aufgerufen.
  *
  * @async
- * @param {object} obj - Das zu durchsuchende Objekt.
- * @param {string} keyToFind - Der Schlüsselname, nach dem gesucht wird.
- * @param {(parentObj: object, key: string) => Promise<void>} callback - Asynchrone Callbackfunktion, die aufgerufen wird, wenn der Schlüssel gefunden wird.
- *        Die Callback erhält das Elternobjekt und den Schlüssel als Argumente.
- * @returns {Promise<void>} Löst auf, wenn das gesamte Objekt rekursiv verarbeitet wurde.
+ * @function traverseAndProcess
+ * @param {Object} obj - Das zu durchsuchende Objekt (beliebige Tiefenstruktur).
+ * @param {string} keyToFind - Der Name des Schlüssels, nach dem rekursiv gesucht werden soll.
+ * @param {(parentObj: Object, key: string) => Promise<void>} callback - 
+ *        Eine asynchrone Funktion, die aufgerufen wird, wenn der Schlüssel gefunden wurde.
+ *        Sie erhält das Elternobjekt und den gefundenen Schlüssel als Parameter, 
+ *        sodass der Wert bei Bedarf direkt verändert werden kann.
+ * 
+ * @returns {Promise<void>} Es wird nichts zurückgegeben, aber das Objekt kann durch den Callback verändert werden.
  */
 async function traverseAndProcess(obj, keyToFind, callback) {
     if (typeof obj !== "object" || obj === null) return;
@@ -159,6 +227,19 @@ async function traverseAndProcess(obj, keyToFind, callback) {
     }
 }
 
+/**
+ * Ruft einen verschachtelten Wert aus einem Objekt anhand eines gegebenen 
+ * Pfads (`dot notation`) ab.
+ * 
+ * Falls ein Teil des Pfades nicht existiert, wird `undefined` zurückgegeben.
+ * 
+ * @function getByPath
+ * @param {Object} obj - Das Quellobjekt, aus dem der Wert gelesen werden soll.
+ * @param {string} path - Der Pfad im `dot`-Format (z. B. `"user.address.street"`), 
+ *                        der angibt, welcher Wert abgerufen werden soll.
+ * 
+ * @returns {*|undefined} Der gefundene Wert am angegebenen Pfad, oder `undefined`, wenn der Pfad nicht existiert.
+ */
 function getByPath(obj, path) {
     const segments = path.split(".");
     let current = obj;
@@ -172,6 +253,20 @@ function getByPath(obj, path) {
     return current;
 }
 
+/**
+ * Setzt einen Wert in einem verschachtelten Objekt an einer durch einen Pfad 
+ * (`dot notation`) definierten Position.
+ * 
+ * Falls Teile des Pfades noch nicht existieren, werden automatisch leere Objekte erstellt.
+ * 
+ * @function setByPath
+ * @param {Object} obj - Das Zielobjekt, in dem der Wert gesetzt werden soll.
+ * @param {string} path - Der Pfad im `dot`-Format (z. B. `"user.address.street"`), der angibt, 
+ *                        wo der Wert gesetzt werden soll.
+ * @param {*} value - Der Wert, der an der angegebenen Position gespeichert wird.
+ * 
+ * @returns {void} Die Funktion gibt keinen Wert zurück, verändert aber das übergebene Objekt direkt.
+ */
 function setByPath(obj, path, value) {
     const keys = path.split(".");
     let current = obj;
