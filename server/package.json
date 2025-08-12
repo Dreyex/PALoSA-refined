@@ -19,6 +19,7 @@
     "express-session": "^1.18.2",
     "fs-extra": "^11.3.1",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
     "pseudonymous-id-generator": "^1.0.3"
   },
   "devDependencies": {

@@ -3,6 +3,7 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import fsExtra from "fs-extra";
+import cron from "node-cron";
 
 //Sessions
 import session from "express-session";
@@ -11,28 +12,51 @@ import multer from "multer";
 //utils
 import startProcessManager from "./utils/processManager.js";
 
+const SESSION_MAX_AGE_MS = 1000 * 60 * 60; // 1 Stunde
+
 const dir1 = path.join(process.cwd(), "uploads");
 const dir2 = path.join(process.cwd(), "output");
 const dir3 = path.join(process.cwd(), "download");
 
-// Ensure directories exist and clean them up
-if (!fs.existsSync(dir1)) {
-    fs.mkdirSync(dir1, { recursive: true });
-}
-fsExtra.emptyDirSync(dir1);
-console.log(`Directory cleaned: ${dir1}`);
+const foldersToClean = [
+    path.join(process.cwd(), "uploads"),
+    path.join(process.cwd(), "output"),
+    path.join(process.cwd(), "download"),
+];
 
-if (!fs.existsSync(dir2)) {
-    fs.mkdirSync(dir2, { recursive: true });
-}
-fsExtra.emptyDirSync(dir2);
-console.log(`Directory cleaned: ${dir2}`);
+// Ensure directories exist (nur bei Bedarf!)
+if (!fs.existsSync(dir1)) fs.mkdirSync(dir1, { recursive: true });
+if (!fs.existsSync(dir2)) fs.mkdirSync(dir2, { recursive: true });
+if (!fs.existsSync(dir3)) fs.mkdirSync(dir3, { recursive: true });
 
-if (!fs.existsSync(dir3)) {
-    fs.mkdirSync(dir3, { recursive: true });
+//Bereinigen von alten Session Ordnern wenn letzter Zugriff älter als 1h
+function cleanOldSessionFolders() {
+    const now = Date.now();
+    foldersToClean.forEach((folder) => {
+        if (fs.existsSync(folder)) {
+            fs.readdirSync(folder).forEach((entry) => {
+                const entryPath = path.join(folder, entry);
+                try {
+                    const stats = fs.statSync(entryPath);
+                    if (now - stats.mtimeMs > SESSION_MAX_AGE_MS) {
+                        fs.rmSync(entryPath, { recursive: true, force: true });
+                        console.log(
+                            `[${new Date().toISOString()}] Gelöscht: ${entryPath}`
+                        );
+                    }
+                } catch (err) {
+                    console.error(
+                        `[${new Date().toISOString()}] Fehler beim Löschen von ${entryPath}:`,
+                        err
+                    );
+                }
+            });
+        }
+    });
 }
-fsExtra.emptyDirSync(dir3);
-console.log(`Directory cleaned: ${dir3}`);
+
+cleanOldSessionFolders();
+cron.schedule("0 * * * *", cleanOldSessionFolders);
 
 // Initialize app
 const app = express();
@@ -47,7 +71,7 @@ app.use(
         secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false }, // Bei HTTPS sollte dies true sein!
+        cookie: { secure: false, maxAge: 1000 * 60 * 60 },
     })
 );
 
@@ -152,28 +176,20 @@ app.post("/api/clean/:sessionId", (req, res) => {
     const dir3Session = path.join(process.cwd(), "download", sessionId);
 
     try {
-        if (!fs.existsSync(dir1Session)) {
-            fs.mkdirSync(dir1Session, { recursive: true });
+        if (fs.existsSync(dir1Session)) {
+            fsExtra.removeSync(dir1Session);
+            console.log(`Directory removed: ${dir1Session}`);
         }
-        fsExtra.emptyDirSync(dir1Session);
-        console.log(`Directory cleaned: ${dir1Session}`);
-
-        if (!fs.existsSync(dir2Session)) {
-            fs.mkdirSync(dir2Session, { recursive: true });
+        if (fs.existsSync(dir2Session)) {
+            fsExtra.removeSync(dir2Session);
+            console.log(`Directory removed: ${dir2Session}`);
         }
-        fsExtra.emptyDirSync(dir2Session);
-        console.log(`Directory cleaned: ${dir2Session}`);
-
-        if (!fs.existsSync(dir3Session)) {
-            fs.mkdirSync(dir3Session, { recursive: true });
+        if (fs.existsSync(dir3Session)) {
+            fsExtra.removeSync(dir3Session);
+            console.log(`Directory removed: ${dir3Session}`);
         }
-        fsExtra.emptyDirSync(dir3Session);
-        console.log(`Directory cleaned: ${dir3Session}`);
     } catch (error) {
-        res.status(500).send(
-            "Fehler beim Löschen der Dateien für Session:",
-            sessionId
-        );
+        return res.status(500).send(`Fehler beim Löschen der Dateien für Session: ${sessionId}`);
     }
 
     // Session zerstören
@@ -184,7 +200,7 @@ app.post("/api/clean/:sessionId", (req, res) => {
         }
         res.json({
             success: true,
-            message: "Session und Verzeichnisse erfolgreich bereinigt.",
+            message: "Session und Verzeichnisse erfolgreich gelöscht.",
         });
     });
 });
