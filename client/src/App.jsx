@@ -184,7 +184,7 @@ function App() {
                         id='jsonSettings'
                         showFileInput={true}
                         showTextInput={true}
-                        options={["Option 1", "Option 2", "Option 3"]}
+                        //options={["Option 1", "Option 2", "Option 3"]}
                         headline={data.settingTitles[1]}
                         fileUploadType='json'
                         value={settings.jsonSettings} //übergebener Wert
@@ -194,11 +194,12 @@ function App() {
                         id='xmlSettings'
                         showFileInput={true}
                         showTextInput={true}
-                        options={["Option 1", "Option 2", "Option 3"]}
+                        //options={["Option 1", "Option 2", "Option 3"]}
                         headline={data.settingTitles[2]}
                         fileUploadType='xml'
                         value={settings.xmlSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
+                        comment="Work In Progress / Ohne Funktion"
                     />
                     <SettingField
                         id='regexSettings'

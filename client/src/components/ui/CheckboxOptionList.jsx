@@ -12,7 +12,7 @@ export default function CheckboxOptionList({ options, value = [], onChange }) {
     };
 
     return (
-        <div className='flex flex-col justify-center items-start p-4'>
+        <div className='flex flex-col items-center p-4 space-y-2'>
             {options.map((option) => (
                 <IconCheckbox
                     key={option}

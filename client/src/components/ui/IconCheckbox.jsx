@@ -2,7 +2,7 @@ import { Check, X } from 'lucide-react';
 
 export default function IconCheckbox({ label, checked, onChange }) {
     return (
-        <label className="flex items-center gap-3 cursor-pointer select-none my-1 mx-auto">
+        <label className="flex items-center cursor-pointer select-none space-x-2 w-32">
             <input
                 type="checkbox"
                 checked={checked}
