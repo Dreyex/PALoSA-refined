@@ -1,15 +1,15 @@
-import React, { useRef, useState } from 'react';
-import { Upload } from 'lucide-react';
+import React, { useRef, useState } from "react";
+import { Upload } from "lucide-react";
 
-import Button from './ui/Button';
-import Card from './ui/Card';
-import FileInput from './ui/FileInput';
-import FileList from './ui/FileList';
+import Button from "./ui/Button";
+import Card from "./ui/Card";
+import FileInput from "./ui/FileInput";
+import FileList from "./ui/FileList";
 
 const ACCEPTED_FILE_TYPES =
-    '.xml,.json,.log,.txt,application/xml,application/json,text/plain';
+    ".xml,.json,.log,.txt,application/xml,application/json,text/plain";
 
-export default function FileUploadCard(fileUploadType) {
+export default function FileUploadCard({fileUploadType, onUploadStatusChange}) {
     const fileInput = useRef(null);
     const [files, setFiles] = useState([]);
 
@@ -21,11 +21,12 @@ export default function FileUploadCard(fileUploadType) {
                 (file) =>
                     !prev.some(
                         (existing) =>
-                            existing.name === file.name && existing.size === file.size
+                            existing.name === file.name &&
+                            existing.size === file.size
                     )
             ),
         ]);
-        e.target.value = '';
+        e.target.value = "";
     };
 
     const handleRemoveFile = (index) => {
@@ -34,28 +35,45 @@ export default function FileUploadCard(fileUploadType) {
 
     const handleUpload = async () => {
         const formData = new FormData();
-        files.forEach((file) => formData.append('files', file));
+        files.forEach((file) => formData.append("files", file));
 
         try {
-            const res = await fetch(`/api/upload?buttonType=${encodeURIComponent(fileUploadType)}`, {
-                method: 'POST',
-                body: formData,
-            });
+            const res = await fetch(
+                `/api/upload?buttonType=${encodeURIComponent(fileUploadType)}`,
+                {
+                    method: "POST",
+                    body: formData,
+                }
+            );
 
             const result = await res.json();
-            console.log('Upload erfolgreich:', result);
+            handleUploadComplete();
+            console.log("Upload erfolgreich:", result);
         } catch (error) {
-            console.error('Beim Upload ist ein Fehler aufgetreten:', error);
+            console.error("Beim Upload ist ein Fehler aufgetreten:", error);
+        }
+    };
+
+    // Nach erfolgreichem Upload
+    const handleUploadComplete = () => {
+        if (typeof onUploadStatusChange === "function") {
+            onUploadStatusChange(true);
+        }
+        else {
+            console.log("onUploadStatusChange ist keine Function:", onUploadStatusChange);
         }
     };
 
     return (
         <Card>
-            <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 w-full">
+            <div className='grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 w-full'>
                 {/* Erste Spalte: Überschrift + Buttons */}
-                <div className="flex flex-col gap-4 text-center border-r-2 border-steel-400 p-4">
-                    <h2 className="text-3xl font-bold">Datei-Upload</h2>
-                    <p className='mb-8 text-sm'> Nur .log, .txt, .json & .xml</p>
+                <div className='flex flex-col gap-4 text-center border-r-2 border-steel-400 p-4'>
+                    <h2 className='text-3xl font-bold'>Datei-Upload</h2>
+                    <p className='mb-8 text-sm'>
+                        {" "}
+                        Nur .log, .txt, .json & .xml
+                    </p>
                     <FileInput
                         accept={ACCEPTED_FILE_TYPES}
                         multiple
@@ -63,13 +81,13 @@ export default function FileUploadCard(fileUploadType) {
                         inputRef={fileInput}
                     />
 
-                    <div className="flex gap-2">
+                    <div className='flex gap-2'>
                         <Button onClick={() => fileInput.current.click()}>
                             Dateien auswählen
                         </Button>
                         <Button
                             onClick={handleUpload}
-                            variant="danger"
+                            variant='danger'
                             disabled={files.length === 0}
                         >
                             <Upload />

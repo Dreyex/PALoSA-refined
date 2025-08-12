@@ -13,6 +13,8 @@ function App() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [sessionId, setSessionId] = useState(null);
+    const [processingDone, setProcessingDone] = useState(false);
+    const [hasUploads, setHasUploads] = useState(false);
 
     const [settings, setSettings] = useState({
         logSettings: { checkedOptions: [] },
@@ -49,13 +51,14 @@ function App() {
 
             const result = await response.json();
             console.log("Server-Antwort:", result);
-            alert("Einstellungen erfolgreich gespeichert!");
+            setProcessingDone(true);
         } catch (err) {
             console.error("Fehler beim Senden der Einstellungen:", err);
             alert(
                 "Fehler beim Senden der Einstellungen. Bitte versuche es erneut.",
                 err
             );
+            setProcessingDone(false);
         }
     };
 
@@ -94,7 +97,7 @@ function App() {
     // Methode zum Aufruf der Cleanup API für eine Session
     async function handleCleanup() {
         try {
-            console.log(sessionId);
+            //console.log(sessionId);
             const response = await fetch(`/api/clean/${sessionId}`, {
                 method: "POST",
                 headers: {
@@ -110,13 +113,17 @@ function App() {
 
             const result = await response.json();
             console.log("Cleanup erfolgreich:", result);
-            alert("Bereinigung und Session-Zerstörung erfolgreich.");
+            //alert("Bereinigung und Session-Zerstörung erfolgreich.");
+
+            //Reload der Seite für Urspungszustand
+            window.location.reload();
         } catch (error) {
             console.error("Fehler bei der Bereinigung:", error);
             alert("Fehler bei der Bereinigung. Siehe Konsole.");
         }
     }
 
+    //Erster Aufruf der API für Textdaten und für SessionID
     useEffect(() => {
         // The vite proxy will redirect this to http://localhost:3001/api
         fetch("/api")
@@ -203,23 +210,24 @@ function App() {
                     />
                 </div>
                 <div className='mt-12'>
-                    <FileUploadCard fileUploadType='other' />
+                    <FileUploadCard fileUploadType='other' onUploadStatusChange={setHasUploads}/>
                 </div>
                 <div className='mt-12 mx-auto text-center'>
                     <Button
                         variant='danger'
                         className='font-extrabold text-2xl'
                         onClick={handleSubmit}
+                        disabled={!hasUploads || processingDone}
                     >
                         Pseudonymisieren
                     </Button>
-                    
                 </div>
-                <div className='mt-12 mx-auto text-center'>
+                <div className='mt-12 mx-auto text-center space-x-4'>
                     <Button
                         variant='default'
                         className='font-bold text-1xl'
                         onClick={handleDownload}
+                        disabled={!processingDone}
                     >
                         Download
                     </Button>
@@ -227,6 +235,7 @@ function App() {
                         variant='default'
                         className='font-bold text-1xl'
                         onClick={handleCleanup}
+                        disabled={!processingDone}
                     >
                         Cleanup
                     </Button>
