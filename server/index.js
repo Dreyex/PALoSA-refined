@@ -4,7 +4,6 @@ import fs from "fs";
 import path from "path";
 import fsExtra from "fs-extra";
 
-
 //Sessions
 import session from "express-session";
 //Upload
@@ -80,10 +79,10 @@ const upload = multer({ storage });
 
 // A sample API route for portfolio data
 app.get("/api", (req, res) => {
-    // In a real app, you would fetch this from a database
     const dataJson = {
         title: "PALoSA",
         settingTitles: ["Txt & Log", "JSON", "XML", "Regex Suchmuster"],
+        sessionId: req.sessionID,
     };
     res.json(dataJson);
 });
@@ -105,8 +104,89 @@ app.post("/api/pseudo", (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Fehler bei der Verarbeitung' });
+        res.status(500).json({ error: "Fehler bei der Verarbeitung" });
     }
+});
+
+app.get("/api/download/:sessionId", (req, res) => {
+    const sessionId = req.params.sessionId;
+
+    if (typeof sessionId !== "string") {
+        // Falls doch Objekt, versuche String daraus zu machen
+        sessionId = JSON.stringify(sessionId);
+    }
+    console.log(sessionId);
+
+    // Pfad zur ZIP-Datei, z. B. "output/<sessionId>/pseudo-files.zip"
+    const zipFilePath = path.join(
+        process.cwd(),
+        "download",
+        sessionId,
+        "pseudo-files.zip"
+    );
+
+    // Setze den Content-Type für ZIP-Dateien
+    res.setHeader("Content-Type", "application/zip");
+
+    // Optional: Content-Disposition, damit der Browser die Datei als Download behandelt
+    res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=pseudo-files.zip`
+    );
+
+    // Sende die Datei an den Client
+    res.download(zipFilePath, (err) => {
+        if (err) {
+            console.error("Fehler beim Dateiversand:", err);
+            if (!res.headersSent) {
+                res.status(500).send("Fehler beim Herunterladen der Datei.");
+            }
+        }
+    });
+});
+
+app.post("/api/clean/:sessionId", (req, res) => {
+    const sessionId = req.params.sessionId;
+    const dir1Session = path.join(process.cwd(), "uploads", sessionId);
+    const dir2Session = path.join(process.cwd(), "output", sessionId);
+    const dir3Session = path.join(process.cwd(), "download", sessionId);
+
+    try {
+        if (!fs.existsSync(dir1Session)) {
+            fs.mkdirSync(dir1Session, { recursive: true });
+        }
+        fsExtra.emptyDirSync(dir1Session);
+        console.log(`Directory cleaned: ${dir1Session}`);
+
+        if (!fs.existsSync(dir2Session)) {
+            fs.mkdirSync(dir2Session, { recursive: true });
+        }
+        fsExtra.emptyDirSync(dir2Session);
+        console.log(`Directory cleaned: ${dir2Session}`);
+
+        if (!fs.existsSync(dir3Session)) {
+            fs.mkdirSync(dir3Session, { recursive: true });
+        }
+        fsExtra.emptyDirSync(dir3Session);
+        console.log(`Directory cleaned: ${dir3Session}`);
+    } catch (error) {
+        res.status(500).send(
+            "Fehler beim Löschen der Dateien für Session:",
+            sessionId
+        );
+    }
+
+    // Session zerstören
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("Fehler beim Zerstören der Session:", err);
+            return res.status(500).send("Fehler beim Zerstören der Session");
+        }
+        res.json({
+            success: true,
+            message: "Session und Verzeichnisse erfolgreich bereinigt.",
+        });
+    });
 });
 
 // Start server
