@@ -1,11 +1,12 @@
 import mergeSettings from "./mergeSettings.js";
-import createOutDir from "./createOutDir.js";
+import createDir from "./createDir.js";
 import processLogFiles from "./processLogFiles.js";
 import processJsonFiles from "./processJsonFiles.js";
 
 import path from "path";
 import { fileURLToPath } from "url";
 import copyFileToOutput from "./copyFileToOutput.js";
+import zipDir from "./archive.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +23,7 @@ const __dirname = path.dirname(__filename);
  * - Kopieren der hochgeladenen Dateien in das Ausgabeverzeichnis
  * - Verarbeitung von Log-Dateien
  * - Verarbeitung von JSON-Dateien mit den übergebenen Einstellungen
+ * - Packen der Dateien in ein Archiv für den Download
  *
  * @async
  * @function startProcessManager
@@ -33,33 +35,40 @@ const __dirname = path.dirname(__filename);
  * @throws {Error} Falls einer der Verarbeitungsschritte fehlschlägt (z. B. Verzeichnisanlage, Dateikopie oder Datei-Parsing).
  */
 export default async function startProcessManager(sessionId, data)
-{   console.log("Starting process manager for session:", sessionId);
+{   console.info("▶️ - Starting process manager for session:", sessionId);
 
     //Setting paths
-    console.log("Setting up paths...");
+    console.info("✒️- Setting up paths...");
     const uploadDir = path.join(__dirname, '..', "uploads", sessionId);
     const outputDir = path.join(__dirname, '..', "output", sessionId);
+    const downloadDir = path.join(__dirname, '..', "download", sessionId);
 
     //Creating Directorys for Output
-    console.log("Creating directorys...");
-    await createOutDir("output");
-    await createOutDir(`output/${sessionId}`);
+    console.info("✒️ - Creating directorys...");
+    await createDir("output");
+    await createDir(`output/${sessionId}`);
+    await createDir("download");
+    await createDir(`download/${sessionId}`);
 
     //Merging Settings for Pseudonymization
-    console.log("Merging settings...");
+    console.info("✒️ - Merging settings...");
     await mergeSettings(sessionId, data, "json");
     await mergeSettings(sessionId, data, "xml");
 
     //Copying files to Output Directory
-    console.log("Copying Files to Output Directory...")
+    console.info("✒️ - Copying Files to Output Directory...")
     await copyFileToOutput(uploadDir, outputDir);
 
     //Processing Log Files
-    console.log("Processing log files...");
+    console.info("✒️ - Processing info files...");
     await processLogFiles(outputDir, data);
 
-    console.log("Processing JSON files...");
+    console.info("✒️ - Processing JSON files...");
     await processJsonFiles(uploadDir, outputDir, data);
 
-    console.log("✅ - Process completed");
+    console.info("✒️ - Creating ZIP Archive...");
+    const downloadDirZip = path.join(downloadDir, "pseudo-files.zip");
+    await zipDir(outputDir, downloadDirZip);
+
+    console.info("✅ - Process completed");
 }

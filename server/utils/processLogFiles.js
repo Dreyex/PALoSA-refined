@@ -53,7 +53,7 @@ export default async function processLogFiles(outputDir, settings) {
                 patterns
             );
             fs.writeFileSync(filePath, updatedContent, "utf-8");
-            console.log(`Anonymisiert: ${dirent.name}`);
+            //console.log(`Anonymisiert: ${dirent.name}`);
         }
     }
 }

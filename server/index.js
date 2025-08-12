@@ -14,6 +14,7 @@ import startProcessManager from "./utils/processManager.js";
 
 const dir1 = path.join(process.cwd(), "uploads");
 const dir2 = path.join(process.cwd(), "output");
+const dir3 = path.join(process.cwd(), "download");
 
 // Ensure directories exist and clean them up
 if (!fs.existsSync(dir1)) {
@@ -27,6 +28,12 @@ if (!fs.existsSync(dir2)) {
 }
 fsExtra.emptyDirSync(dir2);
 console.log(`Directory cleaned: ${dir2}`);
+
+if (!fs.existsSync(dir3)) {
+    fs.mkdirSync(dir3, { recursive: true });
+}
+fsExtra.emptyDirSync(dir3);
+console.log(`Directory cleaned: ${dir3}`);
 
 // Initialize app
 const app = express();

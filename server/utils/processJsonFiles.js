@@ -60,11 +60,9 @@ export default async function processJsonFiles(uploadDir, outputDir, settings) {
         if (dirent.isFile() && dirent.name.endsWith(".json")) {
             const filePath = path.join(outputDir, dirent.name);
             let jsonData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
-            console.log(jsonData);
             // 1. Quellenfelder überall finden und pseudonymisieren
             console.log("...Processing Source Fields...");
             jsonData = await processConfigSources({ uploadDir, jsonData });
-            console.log(jsonData);
             // 2. Abgeleitete Felder bilden und pseudonymisieren
             console.log("...Processing Derived Fields...");
             jsonData = processConfigDerived({
@@ -73,7 +71,6 @@ export default async function processJsonFiles(uploadDir, outputDir, settings) {
                 sources,
                 uploadDir,
             });
-            console.log(jsonData);
             // 3. Reguläre Expressions auf String anwenden
             console.log("...Processing Regexes...");
             const jsonString = JSON.stringify(jsonData);
@@ -81,14 +78,13 @@ export default async function processJsonFiles(uploadDir, outputDir, settings) {
                 jsonString,
                 patterns
             );
-            console.log(updatedContent);
             if (typeof updatedContent !== "string") {
                 throw new Error(
                     "PseudoContentRegex hat keinen String zurückgegeben"
                 );
             }
             fs.writeFileSync(filePath, updatedContent, "utf-8");
-            console.log(`Anonymisiert: ${dirent.name}`);
+            //console.log(`Anonymisiert: ${dirent.name}`);
         }
     }
 }
@@ -140,7 +136,6 @@ async function processConfigSources({ uploadDir, jsonData }) {
                     );
                     parentObj[key] = ip;
                 } else if (typeof value === "string" && isEmailAddress(value)) {
-                    console.log(typeof value, value);
                     parentObj[key] = await pseudonymizeEmail(value);
                 } else {
                     parentObj[key] = await generatePseudonym(value, pseudoKey);

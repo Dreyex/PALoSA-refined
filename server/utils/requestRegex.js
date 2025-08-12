@@ -24,8 +24,6 @@
  * @throws {Error} Wenn bei der Verarbeitung der Einstellungen ein Fehler auftritt.
  */
 export default async function requestRegex(settings, type) {
-    console.log("Requesting regex patterns for type:", type);
-    console.log("Settings provided:", settings);
     try {
         // Stored Regex Patterns
         const regex = {

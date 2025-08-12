@@ -6,13 +6,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * Erstellt ein Ausgabeverzeichnis relativ zum `server/`-Verzeichnis, falls es noch nicht existiert.
+ * Erstellt ein Verzeichnis relativ zum `server/`-Verzeichnis, falls es noch nicht existiert.
  * 
  * Die Funktion prüft zuerst, ob der Zielpfad existiert.  
  * Falls nicht, wird das Verzeichnis inklusive aller notwendigen Unterordner rekursiv angelegt.
  * 
  * @async
- * @function createOutDir
+ * @function createDir
  * @param {string} dirPath - Relativer Pfad (vom `server/`-Verzeichnis aus) zum gewünschten Ausgabeordner.
  *                          Beispiel: `"output/session123"`.
  * 
@@ -20,7 +20,7 @@ const __dirname = path.dirname(__filename);
  * 
  * @throws {Error} Falls das Erstellen des Verzeichnisses fehlschlägt.
  */
-export default async function createOutDir(dirPath) {
+export default async function createDir(dirPath) {
     // dirPath is relative to server/ directory
     const outputDir = path.join(__dirname, '..', dirPath);
     try {
