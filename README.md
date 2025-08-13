@@ -8,7 +8,7 @@
 
 ## Übersicht
 
-Dieses Projekt besteht aus einem React-Frontend (gebaut mit Vite) und einem Express-Backend. Es ist als Monorepo strukturiert und unterstützt reproduzierbare Releases durch Git-Tagging (z. B. `v1.1.0`). Beide Komponenten werden lokal auf einem Server für interne Nutzer bereitgestellt. [104][106][100]
+Dieses Projekt besteht aus einem React-Frontend (gebaut mit Vite) und einem Express-Backend. Es ist als Monorepo strukturiert und unterstützt reproduzierbare Releases durch Git-Tagging (z. B. `v1.1.0`). Beide Komponenten werden lokal auf einem Server für interne Nutzer bereitgestellt.
 
 ---
 
@@ -85,25 +85,23 @@ PALoSA-refined/
 1. **Frontend:**  
    - Im branch/tag (`release/v1-1-0`) bauen mit  
      `npm run build`  
-     Das statische Build-Verzeichnis (z. B. `/frontend/dist`) wird von Nginx ausgeliefert. [100]
+     Das statische Build-Verzeichnis (z. B. `/client/dist`) wird von Nginx ausgeliefert.
 
 2. **Backend:**  
    - Im branch/tag auschecken  
      `npm ci --omit=dev`  
-     Bei TypeScript/Bundler:  
-     `npm run build` (Output in `/backend/dist`)
    - Production-Start:  
-     `NODE_ENV=production node dist/server.js`  
+     `NODE_ENV=production node index.js `
      Alternativ via PM2:  
-     `pm2 start dist/server.js --name palo-backend --env production` [106][110]
+     `pm2 start index.js --name palosa-backend --env production` 
 
 3. **Umgebungsvariablen:**  
-   - In `.env.production` sensible Settings (z. B. PORT, DB_URL, SECRET_KEY) pflegen  
-   - `NODE_ENV=production` wird extern gesetzt (systemd, PM2, CLI), nicht in `.env`! [129][134]
+   - In `.env` sensible Settings (z. B. PORT, DB_URL, SECRET_KEY) pflegen  
+   - `NODE_ENV=production` wird extern gesetzt (systemd, PM2, CLI), nicht in `.env`! 
 
 4. **Nginx-Konfiguration:**  
-   - Serve statische Frontend-Dateien aus `/frontend/dist`  
-   - Proxy API-Requests (z. B. `/api`) an Express (`localhost:3000`) [100][103][108]
+   - Serve statische Frontend-Dateien aus `/client/dist`  
+   - Proxy API-Requests (z. B. `/api`) an Express (`localhost:3000`)
 
 5. **Tagging:**  
    - Der Release-Commit erhält den Tag `v1.1.0`
