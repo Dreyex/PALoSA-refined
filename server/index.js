@@ -71,7 +71,7 @@ app.use(
         secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false, maxAge: 1000 * 60 * 60 },
+        cookie: { secure: true, maxAge: 1000 * 60 * 60 },
     })
 );
 

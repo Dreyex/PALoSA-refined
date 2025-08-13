@@ -14,7 +14,7 @@ export default defineConfig({
     proxy: {
       // string shorthand: http://localhost:5173/api -> http://localhost:3001/api
       '/api': {
-        target: 'http://localhost:3001', // Your express server's address
+        target: 'http://localhost:3000', // express server's address
         changeOrigin: true,
       }
     }
