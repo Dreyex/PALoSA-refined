@@ -59,7 +59,7 @@ export default async function requestRegex(settings, type) {
                 // If both logSettings and regexSettings are provided
                 patterns = [
                     ...checked
-                        .filter((option) => regex.hasOwnProperty(option))
+                        .filter((option) => Object.prototype.hasOwnProperty.call(regex, option))
                         .map((option) => regex[option]),
                     ...regexes,
                 ];
@@ -76,7 +76,7 @@ export default async function requestRegex(settings, type) {
                 // If only logSettings are provided, use the checked options
                 patterns = [
                     ...checked
-                        .filter((option) => regex.hasOwnProperty(option))
+                        .filter((option) => Object.prototype.hasOwnProperty.call(regex, option))
                         .map((option) => regex[option]),
                 ];
             } else {
