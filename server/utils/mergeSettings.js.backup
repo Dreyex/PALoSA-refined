@@ -1,4 +1,4 @@
-﻿import path from "path";
+import path from "path";
 import fs from "fs/promises";
 import { createFile } from "./createFile.js";
 
@@ -30,17 +30,14 @@ import { createFile } from "./createFile.js";
  * @param {Object} [settings.logSettings] - Einstellungen für Log-Dateien.
  * @param {Object} [settings.regexSettings] - Globale reguläre Ausdrucksdefinitionen.
  * @param {string} type - Dateityp, dessen Config gemerged werden soll (`"json"`, `"xml"`, `"log"`, `"regex"`).
- * @param {string} [dir] - Optional: Base directory path. Defaults to "server/uploads/sessionId".
  * 
  * @returns {Promise<void>} Kein Rückgabewert – die Funktion schreibt die gemergte Config-Datei ins Dateisystem.
  * 
  * @throws {Error} Wenn ein unbekannter `type` übergeben wird, 
  *                 das Lesen/Schreiben der Datei fehlschlägt oder ein anderer unerwarteter Fehler auftritt.
  */
-export default async function mergeSettings(sessionId, settings, type, dir = null) {
-    // Default directory path if not provided
-    const baseDir = dir || path.join("server", "uploads", sessionId);
-    const dirPath = path.join(baseDir, type);
+export default async function mergeSettings(sessionId, settings, type, dir) {
+    const dirPath = path.join(dir, type);
     const configPath = path.join(dirPath, "config.json");
 
     try {
