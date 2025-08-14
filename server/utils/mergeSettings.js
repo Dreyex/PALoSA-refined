@@ -36,8 +36,8 @@ import { createFile } from "./createFile.js";
  * @throws {Error} Wenn ein unbekannter `type` übergeben wird, 
  *                 das Lesen/Schreiben der Datei fehlschlägt oder ein anderer unerwarteter Fehler auftritt.
  */
-export default async function mergeSettings(sessionId, settings, type) {
-    const dirPath = path.join("server", "uploads", sessionId, type);
+export default async function mergeSettings(sessionId, settings, type, dir) {
+    const dirPath = path.join(dir, type);
     const configPath = path.join(dirPath, "config.json");
 
     try {

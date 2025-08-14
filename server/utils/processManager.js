@@ -52,8 +52,8 @@ export default async function startProcessManager(sessionId, data)
 
     //Merging Settings for Pseudonymization
     console.info("✒️ - Merging settings...");
-    await mergeSettings(sessionId, data, "json");
-    await mergeSettings(sessionId, data, "xml");
+    await mergeSettings(sessionId, data, "json", uploadDir);
+    await mergeSettings(sessionId, data, "xml", uploadDir);
 
     //Copying files to Output Directory
     console.info("✒️ - Copying Files to Output Directory...")
