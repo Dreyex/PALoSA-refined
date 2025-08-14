@@ -64,6 +64,7 @@ async function cleanupTestEnvironment(sessionId) {
         path.join("server", "uploads", sessionId),
         path.join("server", "output", sessionId),
         path.join("server", "download", sessionId),
+        path.join("server")
     ];
     for (const dir of dirs) {
         if (fs.existsSync(dir)) {
