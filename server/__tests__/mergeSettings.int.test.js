@@ -62,6 +62,12 @@ test("mergeSettings erstellt gemergte config.json", async () => {
     // Keine Duplikate
     const uniqueCount = new Set(merged.sources).size;
     expect(uniqueCount).toBe(merged.sources.length);
+
+    // Cleanup zweite Session
+    await fsPromises.rm(path.join("server", "uploads", sessionId), {
+        recursive: true,
+        force: true,
+    });
 });
 
 test("mergeSettings erstellt neue config.json wenn keine vorhanden", async () => {
