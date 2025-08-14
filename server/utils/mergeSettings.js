@@ -37,50 +37,44 @@ import { createFile } from "./createFile.js";
  *                 das Lesen/Schreiben der Datei fehlschlägt oder ein anderer unerwarteter Fehler auftritt.
  */
 export default async function mergeSettings(sessionId, settings, type) {
-    const dirPath = path.join("uploads", sessionId, type);
+    const dirPath = path.join("server", "uploads", sessionId, type);
+    const configPath = path.join(dirPath, "config.json");
 
     try {
-        // 1. Finde die einzige Datei im Verzeichnis
-        let files;
-        let fileName;
+        // 1. Check if config.json exists, if not create it
+        let jsonData;
         try {
-            files = await fs.readdir(dirPath);
-            fileName = files[0];
+            const fileContent = await fs.readFile(configPath, "utf-8");
+            jsonData = JSON.parse(fileContent);
         } catch (err) {
             if (err.code === "ENOENT") {
+                // Create directory and default config
                 const content = `{ "sources": [], "derived": {} }`;
-                await createFile(dirPath, "config", "json", content); //erstellt auch die Directory
-                fileName = "config.json";
+                await createFile(dirPath, "config", "json", content);
+                jsonData = { sources: [], derived: {} };
             } else {
                 throw err;
             }
         }
 
-        const filePath = path.join(dirPath, fileName);
-
-        // 2. Lese die JSON-Datei
-        const fileContent = await fs.readFile(filePath, "utf-8");
-        let jsonData = JSON.parse(fileContent);
-
-        // 3. Mappe `type` auf den passenden Key in settings
+        // 2. Mappe `type` auf den passenden Key in settings
         const keyMap = {
             json: "jsonSettings",
             xml: "xmlSettings",
             log: "logSettings",
-            regex: "regexSettings", // für Vollständigkeit (wird unten sowieso mit gemerged)
+            regex: "regexSettings",
         };
 
         const mainKey = keyMap[type];
-        //console.log(mainKey);
         if (!mainKey) {
             throw new Error(`Unbekannter Typ: ${type}`);
         }
 
-        // 4. Hole die settings für Typ und für regex (immer dabei)
+        // 3. Hole die settings für Typ und für regex (immer dabei)
         const mainSettings = settings[mainKey] ?? {};
         const regexSettings = settings.regexSettings ?? {};
 
-        // 5. Extrahiere checkedOptions und patterns aus beiden
+        // 4. Extrahiere checkedOptions und patterns aus beiden
         const collectArrays = (obj) => ({
             checkedOptions: Array.isArray(obj.checkedOptions)
                 ? obj.checkedOptions
@@ -91,12 +85,12 @@ export default async function mergeSettings(sessionId, settings, type) {
         const mainArrays = collectArrays(mainSettings);
         const regexArrays = collectArrays(regexSettings);
 
-        // 6. Sicherstellen, dass jsonData.sources ein Array ist
+        // 5. Sicherstellen, dass jsonData.sources ein Array ist
         if (!Array.isArray(jsonData.sources)) {
             jsonData.sources = [];
         }
 
-        // 7. Merge alle Quellen ohne Duplikate
+        // 6. Merge alle Quellen ohne Duplikate
         const mergedSet = new Set(jsonData.sources);
 
         [
@@ -108,18 +102,14 @@ export default async function mergeSettings(sessionId, settings, type) {
 
         jsonData.sources = Array.from(mergedSet);
 
-        // 8. Schreibe zurück in die Datei
+        // 7. Schreibe zurück in die config.json Datei
         await fs.writeFile(
-            filePath,
+            configPath,
             JSON.stringify(jsonData, null, 2),
             "utf-8"
         );
-        
-        //9. Datei umbenennen
-        const newPath = path.join(dirPath, "config.json");
-        await fs.rename(filePath, newPath);
 
-        //console.log( `Settings erfolgreich in Datei ${fileName} im Ordner ${type} für Session ${sessionId} gemerged.`);
+        //console.log( `Settings erfolgreich in config.json im Ordner ${type} für Session ${sessionId} gemerged.`);
     } catch (err) {
         console.error("Fehler bei mergeSettings:", err);
         throw err;
