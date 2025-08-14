@@ -9,11 +9,20 @@
     "dev-debug": "concurrently --names \"Server,Client\" --prefix-colors \"blue.bold,green.bold\" \"npm run start --prefix server\" \"npm run start --prefix client\"",
     "install-dependencies": "concurrently --names \"Server,Client,Root\" --prefix-colors \"blue.bold,green.bold,red.bold\" \"npm install --prefix server\" \"npm install --prefix client\" \"npm install\""
   },
-  "keywords": ["Pseudonymization", "PALoSA", "Data Protection", "Privacy", "Security", "Compliance"],
+  "keywords": [
+    "Pseudonymization",
+    "PALoSA",
+    "Data Protection",
+    "Privacy",
+    "Security",
+    "Compliance"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^9.1.2",
     "vite-plugin-svgr": "^4.3.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
   }
 }
