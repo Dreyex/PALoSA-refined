@@ -133,7 +133,7 @@ app.post("/api/pseudo", (req, res) => {
 });
 
 app.get("/api/download/:sessionId", (req, res) => {
-    const sessionId = req.params.sessionId;
+    let sessionId = req.params.sessionId;
 
     if (typeof sessionId !== "string") {
         // Falls doch Objekt, versuche String daraus zu machen
@@ -188,8 +188,10 @@ app.post("/api/clean/:sessionId", (req, res) => {
             fsExtra.removeSync(dir3Session);
             console.log(`Directory removed: ${dir3Session}`);
         }
-    } catch (error) {
-        return res.status(500).send(`Fehler beim Löschen der Dateien für Session: ${sessionId}`);
+    } catch {
+        return res
+            .status(500)
+            .send(`Fehler beim Löschen der Dateien für Session: ${sessionId}`);
     }
 
     // Session zerstören
@@ -203,6 +205,13 @@ app.post("/api/clean/:sessionId", (req, res) => {
             message: "Session und Verzeichnisse erfolgreich gelöscht.",
         });
     });
+});
+
+app.use(express.static(path.join(process.cwd(), "../client/dist")));
+
+// SPA-Fallback auf index.html
+app.get("/*splat", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "../client/dist", "index.html"));
 });
 
 // Start server

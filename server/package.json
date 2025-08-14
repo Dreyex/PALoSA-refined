@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start:dev": "nodemon index.dev.js",
+    "lint": "eslint .",
+    "test": "jest . --verbose",
+    "test-coverage": "jest . --coverage --verbose",
+    "build": "npm run lint && npm run test",
+    "start:prod": "node index.prod.js"
   },
   "keywords": [],
   "author": "",
@@ -23,13 +27,23 @@
     "pseudonymous-id-generator": "^1.0.3"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@babel/preset-env": "^7.28.0",
+    "@eslint/js": "^9.33.0",
+    "@eslint/json": "^0.13.1",
+    "@eslint/markdown": "^7.1.0",
+    "babel-jest": "^30.0.5",
+    "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "jest": "^30.0.5",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   },
   "nodemonConfig": {
     "ignore": [
       "node_modules/*",
       "output/*",
-      "uploads/*"
+      "uploads/*",
+      "download/*"
     ]
   },
   "type": "module"

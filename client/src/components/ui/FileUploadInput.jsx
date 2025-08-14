@@ -25,7 +25,7 @@ export default function FileUploadInput({
                 setFile(null);
                 return;
             }
-        } catch (err) {
+        } catch {
             alert("Die Datei ist keine gültige JSON!");
             setFile(null);
             return;

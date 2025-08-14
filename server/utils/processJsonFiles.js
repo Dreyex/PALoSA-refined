@@ -120,7 +120,11 @@ async function processConfigSources({ uploadDir, jsonData }) {
     const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
     const sources = config.sources || [];
     const pseudoKey = process.env.pseudoKey || "defaultKey";
-    const cryptoPAn = new CryptoPAn(Buffer.from(pseudoKey, "utf-8"));
+    // CryptoPAn benötigt einen 32-Byte Schlüssel
+    const keyBuffer = Buffer.from(pseudoKey, "utf-8");
+    const paddedKey = Buffer.alloc(32);
+    keyBuffer.copy(paddedKey);
+    const cryptoPAn = new CryptoPAn(paddedKey);
 
     for (const fieldName of sources) {
         // Ersetze alle Vorkommen des Feldes innerhalb der JSON Rekursiv
