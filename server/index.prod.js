@@ -66,8 +66,6 @@ const PORT = process.env.PORT || 3001;
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json()); // To parse JSON bodies
 
-app.use(express.static(path.join(process.cwd(), "/client/dist")));
-
 app.use(
     session({
         secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
@@ -102,11 +100,6 @@ const storage = multer.diskStorage({
 
 // Setup Multer
 const upload = multer({ storage });
-
-// SPA-Fallback auf index.html
-app.get("/*splat", (req, res) => {
-    res.sendFile(path.join(process.cwd(), "/client/dist", "index.html"));
-});
 
 // A sample API route for portfolio data
 app.get("/api", (req, res) => {
@@ -212,6 +205,13 @@ app.post("/api/clean/:sessionId", (req, res) => {
             message: "Session und Verzeichnisse erfolgreich gelöscht.",
         });
     });
+});
+
+app.use(express.static(path.join(process.cwd(), "../client/dist")));
+
+// SPA-Fallback auf index.html
+app.get("/*splat", (req, res) => {
+    res.sendFile(path.join(process.cwd(), "../client/dist", "index.html"));
 });
 
 // Start server
