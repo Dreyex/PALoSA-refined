@@ -12,8 +12,9 @@ export default {
     ],
     // Module name mapping für bessere Kompatibilität
     moduleNameMapper: {
-        "^(.{1,2}/.*).js$": "$1",
-        "^pseudonymous-id-generator$": "<rootDir>/__mocks__/pseudonymous-id-generator.js"
+        "^(\\.\\.?/.*)\\.js$": "$1",
+        "^pseudonymous-id-generator$": "<rootDir>/__mocks__/pseudonymous-id-generator.js",
+        "^\\.\\.?/utils/processManager\\.js$": "<rootDir>/__mocks__/processManager.js"
     },
     // Explicit transform configuration
     transform: {

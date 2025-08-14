@@ -1,4 +1,4 @@
-import pseudoContentRegex from "../utils/PseudoContentRegex.js";
+import pseudoContentRegex from "../utils/pseudoContentRegex.js";
 
 process.env.pseudoKey = "1234567890abcdef"; // 16 chars
 
