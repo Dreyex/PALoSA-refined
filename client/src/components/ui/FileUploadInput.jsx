@@ -2,6 +2,7 @@ import { Upload, CircleCheck } from "lucide-react";
 import { useState } from "react";
 import Button from "./Button";
 import validateConfig from "../../utils/validateConfig";
+import validateFileName from "../../utils/validateFileName";
 
 export default function FileUploadInput({
     headline,
@@ -21,8 +22,8 @@ export default function FileUploadInput({
         const text = await selectedFile.text();
         try {
             const data = JSON.parse(text);
-            if (!validateConfig(data)) {
-                alert("Die Konfigurationsdatei hat ein ungültiges Format!");
+            if (!validateConfig(data) || !validateFileName(selectedFile.name)) {
+                alert("Die Konfigurationsdatei hat ein ungültiges Format oder Namen!");
                 setFile(null);
                 return;
             }
