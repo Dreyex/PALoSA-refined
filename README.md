@@ -1,22 +1,104 @@
-## Client-Side
+# PALoSA: Pseudonymisierungs-App für Log-Dateien
 
-- src/assets/: A place for all static, non-code assets. Store your images, custom fonts, icons (SVGs), etc., here. Vite will correctly bundle these when you build the project.
-- src/components/: This is for your reusable React components.
-- layout/: For major structural components that define the page layout, like Header, Footer, Navbar, or Sidebar.
-- ui/: For small, generic, purely presentational components that could be used anywhere (e.g., a styled Button, a Card container, an Input field).
-- Other components (ProjectCard.jsx) can live at the top level of components if they are more specific to your application's domain.
-- src/hooks/: For your custom React hooks. As your app grows, you'll extract logic from components into reusable hooks (e.g., a useFetch hook, or in this case, a usePortfolioData hook to contain the fetching logic).
-- src/pages/: For top-level components that represent an entire page or view (e.g., Home, About, Contact). If you were to add routing to your application, your router would map paths like / to HomePage.jsx and /about to AboutPage.jsx.
-- src/services/: To abstract away third-party service interactions, especially API calls. Instead of having fetch logic inside your components, you'd have a function here. This makes your code much cleaner. For example, api.js might contain a function getPortfolio() that performs the fetch.
+PALoSA (Pseudonymisierungs-App für Log-Dateien von Server-Anwendungen) ist eine Full-Stack-Webanwendung, die entwickelt wurde, um sensible Daten in verschiedenen Dateiformaten sicher und konfigurierbar zu pseudonymisieren. Die Anwendung besteht aus einem modernen React-Frontend für die Interaktion mit dem Benutzer und einem robusten Node.js/Express-Backend, das die gesamte Verarbeitungslogik übernimmt.
 
-## Server-Side
-- index.js (The Entry Point): This file should now be very simple. Its only jobs are to:
-- Import and set up middleware (like cors).
-- Connect to the database (if any).
-- Tell Express to use your routes.
-- Start the server.
-- routes/: This folder defines the API endpoints (the URLs). It maps a URL like /api/portfolio to a specific controller function. It handles the "what" and "where" of a request.
-- controllers/: This is the "brain" of your API. A controller function is executed by a route. Its job is to handle the incoming request, perform business logic (like getting data), and send back a response. It handles the "how" a request is processed.
-- models/: This folder is for your data schema and interaction logic. Even if you are not using a database yet, it's a good practice to have a "model" file that is responsible for providing the data. If you later add a database like MongoDB, all your database queries would live here.
-- config/: For configuration variables like the server port, database connection strings, or API keys. It's best practice to load these from environment variables.
-- .env: A file (added to .gitignore!) to store your environment variables locally. For example: PORT=3001.
+## ✨ Features
+
+*   **Sicherer Datei-Upload:** Unterstützt das Hochladen von `.log`, `.txt`, `.json` und `.xml` Dateien.
+*   **Flexible Konfiguration:** Bietet verschiedene Einstellungsmöglichkeiten, die auf den Dateityp zugeschnitten sind:
+    *   **Standard-Pseudonymisierung:** Erkennt und anonymisiert automatisch E-Mail-Adressen und IPv4-Adressen in Log- und Textdateien.
+    *   **Benutzerdefinierte Regex-Muster:** Ermöglicht die Definition eigener Suchmuster für alle Dateitypen.
+    *   **JSON-Struktur-Pseudonymisierung:** Ermöglicht gezieltes Anonymisieren von Werten bestimmter Felder (`sources`) und das Erstellen neuer, zusammengeführter Felder (`derived`) über eine `config.json`.
+*   **Deterministische Pseudonymisierung:** Verwendet CryptoPAn für die konsistente und sichere Anonymisierung von IPv4-Adressen.
+*   **Session-basiertes Arbeiten:** Jeder Upload- und Verarbeitungsvorgang wird in einer isolierten Session verwaltet, um Daten sauber zu trennen.
+*   **Download als ZIP:** Alle verarbeiteten Dateien werden in einem ZIP-Archiv für den einfachen Download bereitgestellt.
+*   **Automatisches Aufräumen:** Ein Cron-Job bereinigt regelmäßig alte Session-Verzeichnisse, um den Server sauber zu halten.
+
+## 🚀 Tech Stack
+
+| Bereich   | Technologien                                                                                              |
+| :-------- | :-------------------------------------------------------------------------------------------------------- |
+| **Frontend**  | [React](https://reactjs.org/) 19, [Vite](https://vitejs.dev/), [Tailwind CSS](https://tailwindcss.com/), [Lucide React](https://lucide.dev/), [ogl](https://o-gl.github.io/) (für Hintergrund-Shader) |
+| **Backend**   | [Node.js](https://nodejs.org/), [Express.js](https://expressjs.com/), [Multer](https://github.com/expressjs/multer) (für Datei-Uploads), [Archiver](https://www.archiverjs.com/) (für ZIP-Archivierung), [express-session](https://github.com/expressjs/session) |
+| **Testing**   | [Jest](https://jestjs.io/) für Unit- und Integrationstests.                                                  |
+| **Linting**   | [ESLint](https://eslint.org/) für Code-Qualität in Client und Server.                                     |
+
+## 📂 Projektstruktur
+
+Das Projekt ist in zwei Hauptbereiche unterteilt: `client` und `server`.
+
+```
+.
+├── client/         # React/Vite Frontend
+│   ├── public/     # Statische Assets
+│   └── src/
+│       ├── components/ # Wiederverwendbare React-Komponenten
+│       │   └── ui/     # Allgemeine UI-Elemente (Button, Card, etc.)
+│       └── utils/      # Hilfsfunktionen für das Frontend
+│
+├── server/         # Node.js/Express Backend
+│   ├── __tests__/  # Jest-Tests für das Backend
+│   ├── coverage/   # Test-Coverage-Berichte
+│   ├── uploads/    # Temporäres Verzeichnis für hochgeladene Dateien
+│   ├── output/     # Verzeichnis für verarbeitete, pseudonymisierte Dateien
+│   ├── download/   # Verzeichnis für die erstellten ZIP-Archive
+│   └── utils/      # Die Kernlogik der Pseudonymisierung
+│
+└── package.json    # Skripte zum gleichzeitigen Ausführen von Client & Server
+```
+
+## ⚙️ Erste Schritte
+
+Um das Projekt lokal auszuführen, folgen Sie diesen Schritten.
+
+### Voraussetzungen
+
+*   Node.js (Version 18 oder höher empfohlen)
+*   npm (wird mit Node.js installiert)
+
+### Installation & Einrichtung
+
+1.  **Repository klonen:**
+    ```bash
+    git clone https://github.com/ihr-benutzername/PALoSA-refined.git
+    cd PALoSA-refined
+    ```
+
+2.  **Abhängigkeiten installieren:**
+    Dieses Skript installiert die Abhängigkeiten für das Root-Verzeichnis, den Client und den Server gleichzeitig.
+    ```bash
+    npm run install-dependencies
+    ```
+
+3.  **Umgebungsvariablen einrichten:**
+    Erstellen Sie eine `.env`-Datei im `server/`-Verzeichnis und fügen Sie einen geheimen Schlüssel für die Pseudonymisierung hinzu.
+    ```env
+    # server/.env
+    pseudoKey=dies-ist-ein-sehr-sicherer-key123
+    ```
+
+### Verfügbare Skripte
+
+Die wichtigsten Skripte werden aus dem Projekt-Root ausgeführt:
+
+| Skript                     | Beschreibung                                                                            |
+| :------------------------- | :-------------------------------------------------------------------------------------- |
+| `npm run dev`              | Startet den Client (Vite) und den Server (Nodemon) gleichzeitig im Entwicklungsmodus.   |
+| `npm run build`            | Erstellt die optimierten Builds für Client und Server für die Produktion.               |
+| `npm start-production`     | Startet den Server im Produktionsmodus und liefert den statischen Client-Build aus.     |
+| `npm test --prefix server` | Führt die Jest-Tests für das Backend aus.                                               |
+
+##  Funktionsweise
+
+1.  **Session-Start:** Beim ersten Aufruf der Webseite erstellt der Server eine eindeutige Session-ID für den Benutzer.
+2.  **Datei-Upload:** Der Benutzer wählt Dateien und ggf. Konfigurationsdateien aus. Diese werden per `multer` in ein session-spezifisches Verzeichnis auf dem Server geladen (z.B. `server/uploads/SESSION_ID/`).
+3.  **Konfiguration:** Der Benutzer wählt die gewünschten Pseudonymisierungs-Optionen über die UI aus.
+4.  **Verarbeitung:**
+    *   Ein Klick auf "Pseudonymisieren" sendet die Einstellungen an den `/api/pseudo` Endpunkt.
+    *   Der `processManager` auf dem Server startet den Workflow:
+        1.  Erforderliche Ausgabe- und Download-Verzeichnisse werden erstellt.
+        2.  `mergeSettings` kombiniert die UI-Einstellungen mit eventuell hochgeladenen `config.json`-Dateien.
+        3.  Die Originaldateien werden in das `output`-Verzeichnis kopiert und dabei mit `-pseudo` umbenannt.
+        4.  `processLogFiles` und `processJsonFiles` führen die eigentliche Pseudonymisierung auf den kopierten Dateien durch.
+        5.  `zipDir` packt den Inhalt des `output`-Verzeichnisses in ein ZIP-Archiv im `download`-Verzeichnis.
+5.  **Download & Bereinigung:** Der Benutzer kann das fertige ZIP-Archiv herunterladen. Mit "Cleanup" werden alle zugehörigen Session-Verzeichnisse auf dem Server gelöscht.
