@@ -1,7 +1,8 @@
-import { Upload } from "lucide-react";
-import React, { useState } from "react";
+import { Upload, CircleCheck } from "lucide-react";
+import { useState } from "react";
 import Button from "./Button";
 import validateConfig from "../../utils/validateConfig";
+import validateFileName from "../../utils/validateFileName";
 
 export default function FileUploadInput({
     headline,
@@ -10,6 +11,7 @@ export default function FileUploadInput({
 }) {
     // State für das ausgewählte File
     const [file, setFile] = useState(null);
+    const [feedback, setFeedback] = useState(false);
 
     const handleChange = async (e) => {
         const selectedFile = e.target.files[0] ?? null;
@@ -20,8 +22,8 @@ export default function FileUploadInput({
         const text = await selectedFile.text();
         try {
             const data = JSON.parse(text);
-            if (!validateConfig(data)) {
-                alert("Die Konfigurationsdatei hat ein ungültiges Format!");
+            if (!validateConfig(data) || !validateFileName(selectedFile.name)) {
+                alert("Die Konfigurationsdatei hat ein ungültiges Format oder Namen!");
                 setFile(null);
                 return;
             }
@@ -50,31 +52,32 @@ export default function FileUploadInput({
 
             const result = await res.json();
             console.log("Upload erfolgreich:", result);
+            setFeedback(true); //sucess
         } catch (error) {
             console.error("Beim Upload ist ein Fehler aufgetreten:", error);
         }
     };
 
     return (
-        <div className="flex items-center space-x-2 mb-8">
-            <div className="w-full">
-                <label className="mb-2 text-md" htmlFor="file_input">
+        <div className='flex items-center space-x-2 mb-8'>
+            <div className='w-full'>
+                <label className='mb-2 text-md' htmlFor='file_input'>
                     {headline}
                 </label>
                 <input
-                    className="w-full text-md rounded-md cursor-pointer bg-eclipse-800 p-2"
-                    id="file_input"
-                    type="file"
+                    className='w-full text-md rounded-md cursor-pointer bg-eclipse-800 p-2'
+                    id='file_input'
+                    type='file'
                     onChange={handleChange}
-                    accept=".json"
+                    accept='.json'
                 />
-                <p className="mt-1 text-xs" id="file_input_help">
+                <p className='mt-1 text-xs' id='file_input_help'>
                     {comment}
                 </p>
             </div>
             {/* Button ist deaktiviert solange keine Datei gewählt */}
-            <Button variant="danger" onClick={handleUpload} disabled={!file}>
-                <Upload />
+            <Button variant='danger' onClick={handleUpload} disabled={!file || feedback}>
+                {feedback ? <CircleCheck /> : <Upload />}
             </Button>
         </div>
     );

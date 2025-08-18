@@ -43,7 +43,7 @@ function SettingField({
             {showFileInput && (
                 <FileUploadInput
                     headline={"Config auswählen"}
-                    comment={"JSON"}
+                    comment={"Name & Dateiformat: 'config.json'"}
                     buttonType={fileUploadType}
                 />
             )}

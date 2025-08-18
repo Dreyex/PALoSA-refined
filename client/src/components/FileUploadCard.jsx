@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, CircleCheck } from "lucide-react";
 
 import Button from "./ui/Button";
 import Card from "./ui/Card";
@@ -12,6 +12,7 @@ const ACCEPTED_FILE_TYPES =
 export default function FileUploadCard({fileUploadType, onUploadStatusChange}) {
     const fileInput = useRef(null);
     const [files, setFiles] = useState([]);
+    const [feedback, setFeedback] = useState(false);
 
     const handleSelectFiles = (e) => {
         const selectedFiles = Array.from(e.target.files);
@@ -48,6 +49,7 @@ export default function FileUploadCard({fileUploadType, onUploadStatusChange}) {
 
             const result = await res.json();
             handleUploadComplete();
+            setFeedback(true); //sucess
             console.log("Upload erfolgreich:", result);
         } catch (error) {
             console.error("Beim Upload ist ein Fehler aufgetreten:", error);
@@ -88,15 +90,15 @@ export default function FileUploadCard({fileUploadType, onUploadStatusChange}) {
                         <Button
                             onClick={handleUpload}
                             variant='danger'
-                            disabled={files.length === 0}
+                            disabled={files.length === 0 || feedback}
                         >
-                            <Upload />
+                            {feedback ? <CircleCheck /> : <Upload />}
                         </Button>
                     </div>
                 </div>
 
                 {/* Zweite Spalte: Dateiansicht als Grid */}
-                <FileList files={files} onRemove={handleRemoveFile} />
+                <FileList files={files} onRemove={handleRemoveFile} disable={feedback}/>
             </div>
         </Card>
     );

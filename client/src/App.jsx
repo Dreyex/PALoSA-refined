@@ -246,7 +246,7 @@ function App() {
                         variant='default'
                         className='font-bold text-1xl'
                         onClick={handleCleanup}
-                        disabled={!processingDone}
+                        //disabled={!processingDone}
                     >
                         Cleanup
                     </Button>
