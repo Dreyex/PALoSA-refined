@@ -1,7 +1,7 @@
 import React from 'react';
 import FileItem from './FileItem';
 
-export default function FileList({ files, onRemove }) {
+export default function FileList({ files, onRemove, disable }) {
     if (!files.length) return null;
 
     return (
@@ -11,6 +11,7 @@ export default function FileList({ files, onRemove }) {
                     key={`${file.name}-${file.size}`}
                     file={file}
                     onRemove={() => onRemove(index)}
+                    disable = {disable}
                 />
             ))}
         </div>
