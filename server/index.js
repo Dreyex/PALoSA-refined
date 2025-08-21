@@ -4,36 +4,26 @@ import fs from "fs";
 import path from "path";
 import fsExtra from "fs-extra";
 import cron from "node-cron";
+import session from "express-session";
+import multer from "multer";
 import morgan from "morgan";
 import winston from "winston";
-
-//Sessions
-import session from "express-session";
-//Upload
-import multer from "multer";
-//utils
 import startProcessManager from "./utils/processManager.js";
 
 const SESSION_MAX_AGE_MS = 1000 * 60 * 60; // 1 Stunde
 
-const dir1 = path.join(process.cwd(), "uploads");
-const dir2 = path.join(process.cwd(), "output");
-const dir3 = path.join(process.cwd(), "download");
+const dirUploads = path.join(process.cwd(), "uploads");
+const dirOutput = path.join(process.cwd(), "output");
+const dirDownload = path.join(process.cwd(), "download");
 const logDir = path.join(process.cwd(), "logs");
 
-const foldersToClean = [
-    path.join(process.cwd(), "uploads"),
-    path.join(process.cwd(), "output"),
-    path.join(process.cwd(), "download"),
-];
+const foldersToClean = [dirUploads, dirOutput, dirDownload];
 
-// Ensure directories exist (nur bei Bedarf!)
-if (!fs.existsSync(dir1)) fs.mkdirSync(dir1, { recursive: true });
-if (!fs.existsSync(dir2)) fs.mkdirSync(dir2, { recursive: true });
-if (!fs.existsSync(dir3)) fs.mkdirSync(dir3, { recursive: true });
-if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+// Ensure directories exist
+[dirUploads, dirOutput, dirDownload, logDir].forEach((dir) => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+});
 
-//Bereinigen von alten Session Ordnern wenn letzter Zugriff älter als 1h
 function cleanOldSessionFolders() {
     const now = Date.now();
     foldersToClean.forEach((folder) => {
@@ -62,24 +52,24 @@ function cleanOldSessionFolders() {
 cleanOldSessionFolders();
 cron.schedule("0 * * * *", cleanOldSessionFolders);
 
-// Initialize app
 const app = express();
 const PORT = process.env.PORT || 3001;
+const isProd = process.env.NODE_ENV === "production";
 
 // Middleware
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // To parse JSON bodies
+app.use(cors());
+app.use(express.json());
 
 app.use(
     session({
-        secret: "dein-geheimes-session-secret", // Setze hier ein sicheres Secret!
+        secret: "dein-geheimes-session-secret",
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: false, maxAge: 1000 * 60 * 60 },
+        cookie: { secure: isProd, maxAge: SESSION_MAX_AGE_MS },
     })
 );
 
-// Setup Winston Logger
+// Setup logging
 const logger = winston.createLogger({
     level: "info",
     format: winston.format.combine(
@@ -97,35 +87,45 @@ const logger = winston.createLogger({
     ],
 });
 
-// HTTP Request Logging mit Morgan in Datei
-const accessLogStream = fs.createWriteStream(path.join(logDir, "access.log"), {
-    flags: "a",
-});
-app.use(morgan("combined", { stream: accessLogStream }));
+if (!isProd) {
+    // In Dev: log to console as well
+    logger.add(
+        new winston.transports.Console({ format: winston.format.simple() })
+    );
+}
 
-//Winston Child Logger mit Sessionid Kontext
+// HTTP Request Logging
+if (!isProd) {
+    // Dev Mode uses morgan to log HTTP requests to console
+    app.use(morgan("dev"));
+} else {
+    // Production logs to file
+    const accessLogStream = fs.createWriteStream(
+        path.join(logDir, "access.log"),
+        { flags: "a" }
+    );
+    app.use(morgan("combined", { stream: accessLogStream }));
+}
+
+// Winston child logger with sessionID context
 app.use((req, _res, next) => {
     const sessionId = req.sessionID || "unknown-session";
-    // Erstelle Child-Logger mit sessionId im Kontext
     req.logger = logger.child({ sessionId });
     next();
 });
 
-// Multer Speicher-Engine dynamisch nach Button-Auswahl
+// Multer storage config depends on session and buttonType query param
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         const sessionId = req.session.id;
-        // Hole buttonType aus req.query (weil es vor Multer-Parsing bereits verfügbar ist)
         const type = req.query.buttonType;
         let folder;
-        if (type === "json") {
-            folder = "json";
-        } else if (type === "xml") {
-            folder = "xml";
-        } else {
-            folder = "other";
-        }
-        const dest = path.join("uploads", sessionId, folder); // z. B. uploads/SESSIONID/xml
+
+        if (type === "json") folder = "json";
+        else if (type === "xml") folder = "xml";
+        else folder = "other";
+
+        const dest = path.join("uploads", sessionId, folder);
         fs.mkdirSync(dest, { recursive: true });
         cb(null, dest);
     },
@@ -134,10 +134,9 @@ const storage = multer.diskStorage({
     },
 });
 
-// Setup Multer
 const upload = multer({ storage });
 
-// A sample API route for portfolio data
+
 app.get("/api", (req, res) => {
     const sessionId = req.sessionID;
     const dataJson = {
@@ -264,6 +263,14 @@ app.post("/api/clean/:sessionId", (req, res) => {
     });
 });
 
+// Production: serve static files (SPA) from client/dist
+if (isProd) {
+    app.use(express.static(path.join(process.cwd(), "../client/dist")));
+    app.get("/*splat", (req, res) => {
+        res.sendFile(path.join(process.cwd(), "../client/dist", "index.html"));
+    });
+}
+
 app.use((err, req, res, next) => {
     logger.error(`Error in ${req.method} ${req.url}: ${err.message}`, {
         stack: err.stack,
@@ -275,7 +282,6 @@ app.use((err, req, res, next) => {
     }
 });
 
-// Start server
 app.listen(PORT, () => {
     logger.info("Server started");
     console.log(`Server is running on http://localhost:${PORT}`);
