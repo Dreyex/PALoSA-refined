@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1755776463608" clover="3.2.0">
-  <project timestamp="1755776463608" name="All files">
+<coverage generated="1755779060124" clover="3.2.0">
+  <project timestamp="1755779060125" name="All files">
     <metrics statements="265" coveredstatements="106" conditionals="108" coveredconditionals="26" methods="32" coveredmethods="22" elements="405" coveredelements="154" complexity="0" loc="265" ncloc="265" packages="1" files="12" classes="12"/>
     <file name="PseudoContentRegex.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\PseudoContentRegex.js">
       <metrics statements="36" coveredstatements="31" conditionals="4" coveredconditionals="3" methods="5" coveredmethods="5"/>
