@@ -2,6 +2,7 @@ import mergeSettings from "./mergeSettings.js";
 import createDir from "./createDir.js";
 import processLogFiles from "./processLogFiles.js";
 import processJsonFiles from "./processJsonFiles.js";
+import processXmlFiles from "./processXmlFiles.js";
 
 import path from "path";
 import { fileURLToPath } from "url";
@@ -60,11 +61,16 @@ export default async function startProcessManager(sessionId, data)
     await copyFileToOutput(uploadDir, outputDir);
 
     //Processing Log Files
-    console.info("✒️ - Processing info files...");
+    console.info("✒️ - Processing Text/Log files...");
     await processLogFiles(outputDir, data);
-
+    
+    //Processing JSON Files
     console.info("✒️ - Processing JSON files...");
     await processJsonFiles(uploadDir, outputDir, data);
+    
+    //Processing XML Files
+    console.info("✒️ - Processing XML files...");
+    await processXmlFiles(uploadDir, outputDir, data);
 
     console.info("✒️ - Creating ZIP Archive...");
     const downloadDirZip = path.join(downloadDir, "pseudo-files.zip");
