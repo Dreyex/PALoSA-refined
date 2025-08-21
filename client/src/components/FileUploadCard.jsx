@@ -9,7 +9,7 @@ import FileList from "./ui/FileList";
 const ACCEPTED_FILE_TYPES =
     ".xml,.json,.log,.txt,application/xml,application/json,text/plain";
 
-export default function FileUploadCard({fileUploadType, onUploadStatusChange}) {
+export default function FileUploadCard({fileUploadType, onUploadStatusChange, sessionId}) {
     const fileInput = useRef(null);
     const [files, setFiles] = useState([]);
     const [feedback, setFeedback] = useState(false);
@@ -40,7 +40,7 @@ export default function FileUploadCard({fileUploadType, onUploadStatusChange}) {
 
         try {
             const res = await fetch(
-                `/api/upload?buttonType=${encodeURIComponent(fileUploadType)}`,
+                `/api/upload/${sessionId}?buttonType=${encodeURIComponent(fileUploadType)}`,
                 {
                     method: "POST",
                     body: formData,

@@ -4,11 +4,10 @@
   "description": "PALoSA in a new and improved version",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "concurrently --names \"Server,Client\" --prefix-colors \"blue.bold,green.bold\" \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
     "dev-debug": "concurrently --names \"Server,Client\" --prefix-colors \"blue.bold,green.bold\" \"npm run start --prefix server\" \"npm run start --prefix client\"",
-    "install-dependencies": "concurrently --names \"Server,Client,Root\" --prefix-colors \"blue.bold,green.bold,red.bold\" \"npm install --prefix server\" \"npm install --prefix client\" \"npm install\"",
-    "start-production": "npm run start:prod --prefix server",
+    "install-dependencies": "npm install --prefix server && npm install --prefix client && npm install",
+    "start": "npm start --prefix server",
     "build": "npm run build --prefix client && npm run build --prefix server"
   },
   "keywords": [
@@ -22,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cross-env": "^10.0.0",
     "vite-plugin-svgr": "^4.3.0"
   },
   "devDependencies": {

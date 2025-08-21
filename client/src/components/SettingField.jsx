@@ -12,6 +12,7 @@ function SettingField({
     fileUploadType,
     value,
     onChange,
+    sessionId
 }) {
     const handleCheckboxChange = (updateCheckedOptions) => {
         onChange && onChange(id, { checkedOptions: updateCheckedOptions });
@@ -45,6 +46,7 @@ function SettingField({
                     headline={"Config auswählen"}
                     comment={"Name & Dateiformat: 'config.json'"}
                     buttonType={fileUploadType}
+                    sessionId={sessionId}
                 />
             )}
             {options && Array.isArray(options) && options.length > 0 && (

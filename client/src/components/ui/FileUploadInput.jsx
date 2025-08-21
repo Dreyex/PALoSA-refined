@@ -8,6 +8,7 @@ export default function FileUploadInput({
     headline,
     comment,
     buttonType = "other",
+    sessionId
 }) {
     // State für das ausgewählte File
     const [file, setFile] = useState(null);
@@ -43,7 +44,7 @@ export default function FileUploadInput({
 
         try {
             const res = await fetch(
-                `/api/upload?buttonType=${encodeURIComponent(buttonType)}`,
+                `/api/upload/${sessionId}?buttonType=${encodeURIComponent(buttonType)}`,
                 {
                     method: "POST",
                     body: formData,

@@ -31,18 +31,20 @@ import { createFile } from "./createFile.js";
  * @param {Object} [settings.regexSettings] - Globale reguläre Ausdrucksdefinitionen.
  * @param {string} type - Dateityp, dessen Config gemerged werden soll (`"json"`, `"xml"`, `"log"`, `"regex"`).
  * @param {string} [dir] - Optional: Base directory path. Defaults to "server/uploads/sessionId".
+ * @param {import('winston').Logger} logger - Logger für die Ausgaben im Log
  * 
  * @returns {Promise<void>} Kein Rückgabewert – die Funktion schreibt die gemergte Config-Datei ins Dateisystem.
  * 
  * @throws {Error} Wenn ein unbekannter `type` übergeben wird, 
  *                 das Lesen/Schreiben der Datei fehlschlägt oder ein anderer unerwarteter Fehler auftritt.
  */
-export default async function mergeSettings(sessionId, settings, type, dir = null) {
+export default async function mergeSettings(sessionId, settings, type, dir = null, logger) {
     // Default directory path if not provided
     const baseDir = dir || path.join("server", "uploads", sessionId);
     const dirPath = path.join(baseDir, type);
     const configPath = path.join(dirPath, "config.json");
 
+    logger.info(`starting the process of merging the config.js with input patterns`);
     try {
         // 1. Check if config.json exists, if not create it
         let jsonData;
@@ -53,7 +55,7 @@ export default async function mergeSettings(sessionId, settings, type, dir = nul
             if (err.code === "ENOENT") {
                 // Create directory and default config
                 const content = `{ "sources": [], "derived": {} }`;
-                await createFile(dirPath, "config", "json", content);
+                await createFile(dirPath, "config", "json", content, logger);
                 jsonData = { sources: [], derived: {} };
             } else {
                 throw err;
@@ -111,10 +113,10 @@ export default async function mergeSettings(sessionId, settings, type, dir = nul
             JSON.stringify(jsonData, null, 2),
             "utf-8"
         );
-
+        logger.info(`Merging sucessfully completed`);
         //console.log( `Settings erfolgreich in config.json im Ordner ${type} für Session ${sessionId} gemerged.`);
     } catch (err) {
-        console.error("Fehler bei mergeSettings:", err);
+        logger.error("Error in mergeSettings:", {error: err});
         throw err;
     }
 }
