@@ -10,7 +10,7 @@
  * @param {string} fileName - Ursprünglicher Dateiname (z. B. `"report.json"` oder `"logfile"`).
  * @returns {Promise<string>} Der neue Dateiname mit `"-pseudo"` vor der Endung oder am Ende des Namens.
  */
-export default async function generateFileName(fileName) {
+export default async function generateFileName(fileName, logger) {
     try {
         // Insert "-pseudo" before the file extension
         const extIndex = fileName.lastIndexOf(".");
@@ -22,7 +22,7 @@ export default async function generateFileName(fileName) {
         }
         return newName;
     } catch (error) {
-        console.error("Error in generateFileName:", error);
+        logger.error("Error in generateFileName:", {error});
         return fileName;
     }
 }

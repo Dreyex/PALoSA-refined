@@ -22,9 +22,11 @@
     "express": "^5.1.0",
     "express-session": "^1.18.2",
     "fs-extra": "^11.3.1",
+    "morgan": "^1.10.1",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
-    "pseudonymous-id-generator": "^1.0.3"
+    "pseudonymous-id-generator": "^1.0.3",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",

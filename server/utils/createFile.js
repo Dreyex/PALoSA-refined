@@ -4,32 +4,40 @@ import { join } from "path";
 
 /**
  * Erstellt eine neue Datei im angegebenen Verzeichnis und schreibt den übergebenen Inhalt hinein.
- * 
- * Falls das Zielverzeichnis nicht existiert, wird es rekursiv erstellt.  
- * Wenn die Datei bereits vorhanden ist, wird ihr Inhalt überschrieben.
- * 
+ *
  * @async
  * @function createFile
- * @param {string} directory - Pfad zum Zielverzeichnis, in dem die Datei erstellt werden soll.
- * @param {string} filename - Name der Datei ohne Dateiendung.
- * @param {string} filetype - Dateiendung (z. B. `"txt"` oder `".txt"`). Falls mit Punkt angegeben, wird dieser entfernt.
- * @param {string} [content=""] - Der Inhalt, der in die Datei geschrieben wird (Standard: leerer String).
- * 
- * @returns {Promise<void>} Gibt keinen Wert zurück. Erstellt oder überschreibt die Datei.
- * 
- * @throws {Error} Falls das Erstellen des Verzeichnisses oder das Schreiben in die Datei fehlschlägt.
+ * @param {string} directory - Pfad zum Zielverzeichnis.
+ * @param {string} filename - Name der Datei ohne Endung.
+ * @param {string} filetype - Dateiendung (ohne Punkt).
+ * @param {string} [content=""] - Inhalt der Datei.
+ * @param {import('winston').Logger} logger - Logger zum Loggen von Infos und Fehlern.
+ *
+ * @returns {Promise<void>}
  */
-export async function createFile(directory, filename, filetype, content = "") {
-    // Falls filetype mit Punkt übergeben wird: ".txt" → "txt"
-    if (filetype.startsWith(".")) filetype = filetype.slice(1);
+export async function createFile(
+    directory,
+    filename,
+    filetype,
+    content = "",
+    logger
+) {
+    try {
+        if (filetype.startsWith(".")) filetype = filetype.slice(1);
+        const fullPath = join(directory, `${filename}.${filetype}`);
 
-    const fullPath = join(directory, `${filename}.${filetype}`);
+        await mkdir(directory, { recursive: true });
+        logger.info(
+            `Verzeichnis erstellt oder existiert bereits: ${directory}`
+        );
 
-    // Verzeichnis (rekursiv) erstellen, falls nicht existent
-    await mkdir(directory, { recursive: true });
-
-    // Datei schreiben (überschreibt, falls existiert)
-    await writeFile(fullPath, content);
-    //console.log(`Datei erstellt: ${fullPath}`);
+        await writeFile(fullPath, content);
+        logger.info(`Datei erstellt/überschrieben: ${fullPath}`);
+    } catch (error) {
+        logger.error(
+            `Fehler beim Erstellen der Datei ${filename}.${filetype} in ${directory}`,
+            { error }
+        );
+        throw error; // Weiterwerfen, damit Aufrufer den Fehler ggf. behandeln kann
+    }
 }
-
