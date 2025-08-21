@@ -37,7 +37,7 @@ function App() {
     const handleSubmit = async () => {
         //console.log(settings);
         try {
-            const response = await fetch("/api/pseudo", {
+            const response = await fetch(`/api/pseudo/${sessionId}`, {
                 // Beispiel: Endpunkt "/api/settings"
                 method: "POST",
                 headers: {
@@ -186,6 +186,7 @@ function App() {
                         headline={data.settingTitles[0]}
                         value={settings.logSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
+                        sessionId={sessionId}
                     />
                     <SettingField
                         id='jsonSettings'
@@ -196,6 +197,7 @@ function App() {
                         fileUploadType='json'
                         value={settings.jsonSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
+                        sessionId={sessionId}
                     />
                     <SettingField
                         id='xmlSettings'
@@ -207,6 +209,7 @@ function App() {
                         value={settings.xmlSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
                         comment='Work In Progress / Ohne Funktion'
+                        sessionId={sessionId}
                     />
                     <SettingField
                         id='regexSettings'
@@ -215,12 +218,14 @@ function App() {
                         comment='Für alle Dateien'
                         value={settings.regexSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
+                        sessionId={sessionId}
                     />
                 </div>
                 <div className='mt-12'>
                     <FileUploadCard
                         fileUploadType='other'
                         onUploadStatusChange={setHasUploads}
+                        sessionId={sessionId}
                     />
                 </div>
                 <div className='mt-12 mx-auto text-center'>
