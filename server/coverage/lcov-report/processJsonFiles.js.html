@@ -584,7 +584,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -765,6 +764,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -856,7 +856,7 @@ export default async function processJsonFiles(
 &nbsp;
         const dirents = <span class="cstat-no" title="statement not covered" >fs.readdirSync(outputDir, { withFileTypes: true });</span>
 &nbsp;
-        const configPath = <span class="cstat-no" title="statement not covered" >path.join(uploadDir, "json", "config.json");</span>
+        const configPath = <span class="cstat-no" title="statement not covered" >path.join(uploadDir, "json", "json-config.json");</span>
         let derivedFields = <span class="cstat-no" title="statement not covered" >{};</span>
         let sources = <span class="cstat-no" title="statement not covered" >[];</span>
 <span class="cstat-no" title="statement not covered" >        if (fs.existsSync(configPath)) {</span>
@@ -877,9 +877,9 @@ export default async function processJsonFiles(
                     `Processing source fields for file: ${dirent.name}`
                 );
 <span class="cstat-no" title="statement not covered" >                jsonData = await processConfigSources({</span>
-                    uploadDir,
                     jsonData,
                     logger,
+                    configPath
                 });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >                logger.info(</span>
@@ -947,8 +947,7 @@ export default async function processJsonFiles(
  * @throws {Error} Wenn das Lesen oder Parsen der `config.json` fehlschlägt,
  *                 oder wenn die Pseudonymisierung für ein Feld nicht durchgeführt werden kann.
  */
-async function <span class="fstat-no" title="function not covered" >processConfigSources(</span>{ uploadDir, jsonData, logger }) {
-    const configPath = <span class="cstat-no" title="statement not covered" >path.join(uploadDir, "json", "config.json");</span>
+export async function <span class="fstat-no" title="function not covered" >processConfigSources(</span>{jsonData, logger, configPath }) {
 <span class="cstat-no" title="statement not covered" >    if (!fs.existsSync(configPath)) {</span>
 <span class="cstat-no" title="statement not covered" >        logger?.warn(`Config file not found at ${configPath}`);</span>
 <span class="cstat-no" title="statement not covered" >        return jsonData;</span>
@@ -957,7 +956,7 @@ async function <span class="fstat-no" title="function not covered" >processConfi
 <span class="cstat-no" title="statement not covered" >    try {</span>
         const config = <span class="cstat-no" title="statement not covered" >JSON.parse(fs.readFileSync(configPath, "utf-8"));</span>
         const sources = <span class="cstat-no" title="statement not covered" >config.sources || [];</span>
-        const pseudoKey = <span class="cstat-no" title="statement not covered" >process.env.pseudoKey || "defaultKey";</span>
+        const pseudoKey = <span class="cstat-no" title="statement not covered" >process.env.PSEUDO_KEY || "defaultKey";</span>
         // CryptoPAn benötigt 32 Byte Schlüssel
         const keyBuffer = <span class="cstat-no" title="statement not covered" >Buffer.from(pseudoKey, "utf-8");</span>
         const paddedKey = <span class="cstat-no" title="statement not covered" >Buffer.alloc(32);</span>
@@ -1029,7 +1028,7 @@ async function <span class="fstat-no" title="function not covered" >processConfi
  *
  * @returns {Object} Das bearbeitete JSON-Objekt mit den hinzugefügten oder aktualisierten Derived Fields.
  */
-function <span class="fstat-no" title="function not covered" >processConfigDerived(</span>{ jsonData, derivedFields, logger }) {
+export function <span class="fstat-no" title="function not covered" >processConfigDerived(</span>{ jsonData, derivedFields, logger }) {
 <span class="cstat-no" title="statement not covered" >    for (const [targetKey, config] of Object.entries(derivedFields)) {</span>
         const { sources: paths, separator = <span class="branch-0 cbranch-no" title="branch not covered" >"" </span>} = <span class="cstat-no" title="statement not covered" >config;</span>
         const values = <span class="cstat-no" title="statement not covered" >[];</span>
@@ -1080,7 +1079,7 @@ function <span class="fstat-no" title="function not covered" >processConfigDeriv
  *
  * @returns {Promise&lt;void&gt;} Es wird nichts zurückgegeben, aber das Objekt kann durch den Callback verändert werden.
  */
-async function <span class="fstat-no" title="function not covered" >traverseAndProcess(</span>obj, keyToFind, callback, logger) {
+export async function <span class="fstat-no" title="function not covered" >traverseAndProcess(</span>obj, keyToFind, callback, logger) {
 <span class="cstat-no" title="statement not covered" >    if (typeof obj !== "object" || obj === null) <span class="cstat-no" title="statement not covered" >return;</span></span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const key in obj) {</span>
@@ -1119,7 +1118,7 @@ async function <span class="fstat-no" title="function not covered" >traverseAndP
  *
  * @returns {*|undefined} Der gefundene Wert am angegebenen Pfad, oder `undefined`, wenn der Pfad nicht existiert.
  */
-function <span class="fstat-no" title="function not covered" >getByPath(</span>obj, path, logger) {
+export function <span class="fstat-no" title="function not covered" >getByPath(</span>obj, path, logger) {
     const segments = <span class="cstat-no" title="statement not covered" >path.split(".");</span>
     let current = <span class="cstat-no" title="statement not covered" >obj;</span>
 <span class="cstat-no" title="statement not covered" >    for (const segment of segments) {</span>
@@ -1132,6 +1131,7 @@ function <span class="fstat-no" title="function not covered" >getByPath(</span>o
 <span class="cstat-no" title="statement not covered" >            return undefined;</span>
         }
     }
+<span class="cstat-no" title="statement not covered" >    return current;</span>
 }
 &nbsp;
 /**
@@ -1149,7 +1149,7 @@ function <span class="fstat-no" title="function not covered" >getByPath(</span>o
  *
  * @returns {void} Die Funktion gibt keinen Wert zurück, verändert aber das übergebene Objekt direkt.
  */
-function <span class="fstat-no" title="function not covered" >setByPath(</span>obj, path, value, logger) {
+export function <span class="fstat-no" title="function not covered" >setByPath(</span>obj, path, value, logger) {
     const keys = <span class="cstat-no" title="statement not covered" >path.split(".");</span>
     let current = <span class="cstat-no" title="statement not covered" >obj;</span>
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; keys.length - 1; i++) {</span>
@@ -1171,7 +1171,7 @@ function <span class="fstat-no" title="function not covered" >setByPath(</span>o
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-08-22T09:56:34.464Z
+                at 2025-08-22T15:31:36.866Z
             </div>
         <script src="prettify.js"></script>
         <script>
