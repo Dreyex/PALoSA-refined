@@ -6,7 +6,7 @@ import isEmailAddress from "./isEMailAddress.js";
 import pseudonymizeEmail from "./pseudonymizeMail.js";
 import { ipStringToBuffer, bufferToIpString } from "./ipBuffer.js";
 
-const anonymizationKey = process.env.pseudoKey;
+const anonymizationKey = process.env.PSEUDO_KEY;
 
 // CryptoPan initialisieren
 const cp = new CryptoPAn(Buffer.from(anonymizationKey, "utf-8"));
