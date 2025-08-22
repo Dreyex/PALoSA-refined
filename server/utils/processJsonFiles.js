@@ -57,7 +57,7 @@ export default async function processJsonFiles(
 
         const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
 
-        const configPath = path.join(uploadDir, "json", "config.json");
+        const configPath = path.join(uploadDir, "json", "json-config.json");
         let derivedFields = {};
         let sources = [];
         if (fs.existsSync(configPath)) {
@@ -149,7 +149,7 @@ export default async function processJsonFiles(
  *                 oder wenn die Pseudonymisierung für ein Feld nicht durchgeführt werden kann.
  */
 async function processConfigSources({ uploadDir, jsonData, logger }) {
-    const configPath = path.join(uploadDir, "json", "config.json");
+    const configPath = path.join(uploadDir, "json", "json-config.json");
     if (!fs.existsSync(configPath)) {
         logger?.warn(`Config file not found at ${configPath}`);
         return jsonData;

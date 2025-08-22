@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1755779060124" clover="3.2.0">
-  <project timestamp="1755779060125" name="All files">
+<coverage generated="1755856594528" clover="3.2.0">
+  <project timestamp="1755856594528" name="All files">
     <metrics statements="265" coveredstatements="106" conditionals="108" coveredconditionals="26" methods="32" coveredmethods="22" elements="405" coveredelements="154" complexity="0" loc="265" ncloc="265" packages="1" files="12" classes="12"/>
-    <file name="PseudoContentRegex.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\PseudoContentRegex.js">
+    <file name="PseudoContentRegex.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\PseudoContentRegex.js">
       <metrics statements="36" coveredstatements="31" conditionals="4" coveredconditionals="3" methods="5" coveredmethods="5"/>
       <line num="9" count="3" type="stmt"/>
       <line num="12" count="3" type="stmt"/>
@@ -41,7 +41,7 @@
       <line num="122" count="2" type="stmt"/>
       <line num="123" count="2" type="stmt"/>
     </file>
-    <file name="copyFileToOutput.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\copyFileToOutput.js">
+    <file name="copyFileToOutput.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\copyFileToOutput.js">
       <metrics statements="23" coveredstatements="16" conditionals="8" coveredconditionals="5" methods="1" coveredmethods="1"/>
       <line num="19" count="2" type="stmt"/>
       <line num="20" count="2" type="stmt"/>
@@ -67,7 +67,7 @@
       <line num="51" count="2" type="stmt"/>
       <line num="52" count="0" type="stmt"/>
     </file>
-    <file name="createFile.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\createFile.js">
+    <file name="createFile.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\createFile.js">
       <metrics statements="9" coveredstatements="6" conditionals="3" coveredconditionals="1" methods="1" coveredmethods="1"/>
       <line num="25" count="1" type="stmt"/>
       <line num="26" count="1" type="cond" truecount="1" falsecount="1"/>
@@ -79,7 +79,7 @@
       <line num="37" count="1" type="stmt"/>
       <line num="41" count="0" type="stmt"/>
     </file>
-    <file name="generateFileName.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\generateFileName.js">
+    <file name="generateFileName.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\generateFileName.js">
       <metrics statements="8" coveredstatements="6" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
       <line num="14" count="3" type="stmt"/>
       <line num="16" count="3" type="stmt"/>
@@ -90,17 +90,17 @@
       <line num="25" count="0" type="stmt"/>
       <line num="26" count="0" type="stmt"/>
     </file>
-    <file name="ipBuffer.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\ipBuffer.js">
+    <file name="ipBuffer.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\ipBuffer.js">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
       <line num="14" count="8" type="stmt"/>
       <line num="28" count="2" type="stmt"/>
     </file>
-    <file name="isEMailAddress.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\isEMailAddress.js">
+    <file name="isEMailAddress.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\isEMailAddress.js">
       <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <line num="20" count="3" type="stmt"/>
       <line num="21" count="3" type="stmt"/>
     </file>
-    <file name="isIPv4Address.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\isIPv4Address.js">
+    <file name="isIPv4Address.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\isIPv4Address.js">
       <metrics statements="5" coveredstatements="4" conditionals="2" coveredconditionals="1" methods="1" coveredmethods="1"/>
       <line num="16" count="5" type="cond" truecount="1" falsecount="1"/>
       <line num="17" count="0" type="stmt"/>
@@ -108,7 +108,7 @@
       <line num="24" count="5" type="stmt"/>
       <line num="26" count="5" type="stmt"/>
     </file>
-    <file name="mergeSettings.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\mergeSettings.js">
+    <file name="mergeSettings.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\mergeSettings.js">
       <metrics statements="32" coveredstatements="4" conditionals="17" coveredconditionals="3" methods="3" coveredmethods="1"/>
       <line num="43" count="2" type="cond" truecount="2" falsecount="0"/>
       <line num="44" count="2" type="stmt"/>
@@ -143,7 +143,7 @@
       <line num="119" count="0" type="stmt"/>
       <line num="120" count="0" type="stmt"/>
     </file>
-    <file name="processJsonFiles.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\processJsonFiles.js">
+    <file name="processJsonFiles.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\processJsonFiles.js">
       <metrics statements="99" coveredstatements="5" conditionals="51" coveredconditionals="0" methods="7" coveredmethods="1"/>
       <line num="12" count="1" type="stmt"/>
       <line num="52" count="1" type="stmt"/>
@@ -245,7 +245,7 @@
       <line num="365" count="0" type="stmt"/>
       <line num="366" count="0" type="stmt"/>
     </file>
-    <file name="processLogFiles.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\processLogFiles.js">
+    <file name="processLogFiles.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\processLogFiles.js">
       <metrics statements="13" coveredstatements="4" conditionals="5" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <line num="18" count="1" type="stmt"/>
       <line num="19" count="1" type="stmt"/>
@@ -261,7 +261,7 @@
       <line num="43" count="1" type="stmt"/>
       <line num="44" count="0" type="stmt"/>
     </file>
-    <file name="pseudonymizeMail.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\pseudonymizeMail.js">
+    <file name="pseudonymizeMail.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\pseudonymizeMail.js">
       <metrics statements="7" coveredstatements="7" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
       <line num="4" count="4" type="stmt"/>
       <line num="22" count="2" type="stmt"/>
@@ -271,7 +271,7 @@
       <line num="27" count="2" type="stmt"/>
       <line num="29" count="2" type="stmt"/>
     </file>
-    <file name="requestRegex.js" path="C:\Users\wolff19\Documents\GitHub\PALoSA-refined\server\utils\requestRegex.js">
+    <file name="requestRegex.js" path="C:\Users\mrwol\Documents\GitHub\PALoSA-refined\server\utils\requestRegex.js">
       <metrics statements="29" coveredstatements="19" conditionals="16" coveredconditionals="11" methods="7" coveredmethods="5"/>
       <line num="28" count="4" type="stmt"/>
       <line num="29" count="4" type="stmt"/>

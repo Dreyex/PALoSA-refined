@@ -43,7 +43,7 @@ export default async function processXmlFiles(
         const patterns = await requestRegex(settings, "other", logger);
         const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
 
-        const configPath = path.join(uploadDir, "xml", "config.json");
+        const configPath = path.join(uploadDir, "xml", "xml-config.json");
         let derivedFields = {};
         let sources = [];
         if (fs.existsSync(configPath)) {
