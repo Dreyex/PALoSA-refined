@@ -57,7 +57,7 @@ export default async function processJsonFiles(
 
         const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
 
-        const configPath = path.join(uploadDir, "json", "config.json");
+        const configPath = path.join(uploadDir, "json", "json-config.json");
         let derivedFields = {};
         let sources = [];
         if (fs.existsSync(configPath)) {
@@ -78,9 +78,9 @@ export default async function processJsonFiles(
                     `Processing source fields for file: ${dirent.name}`
                 );
                 jsonData = await processConfigSources({
-                    uploadDir,
                     jsonData,
                     logger,
+                    configPath
                 });
 
                 logger.info(
@@ -148,8 +148,7 @@ export default async function processJsonFiles(
  * @throws {Error} Wenn das Lesen oder Parsen der `config.json` fehlschlägt,
  *                 oder wenn die Pseudonymisierung für ein Feld nicht durchgeführt werden kann.
  */
-async function processConfigSources({ uploadDir, jsonData, logger }) {
-    const configPath = path.join(uploadDir, "json", "config.json");
+export async function processConfigSources({jsonData, logger, configPath }) {
     if (!fs.existsSync(configPath)) {
         logger?.warn(`Config file not found at ${configPath}`);
         return jsonData;
@@ -158,7 +157,7 @@ async function processConfigSources({ uploadDir, jsonData, logger }) {
     try {
         const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
         const sources = config.sources || [];
-        const pseudoKey = process.env.pseudoKey || "defaultKey";
+        const pseudoKey = process.env.PSEUDO_KEY || "defaultKey";
         // CryptoPAn benötigt 32 Byte Schlüssel
         const keyBuffer = Buffer.from(pseudoKey, "utf-8");
         const paddedKey = Buffer.alloc(32);
@@ -230,7 +229,7 @@ async function processConfigSources({ uploadDir, jsonData, logger }) {
  *
  * @returns {Object} Das bearbeitete JSON-Objekt mit den hinzugefügten oder aktualisierten Derived Fields.
  */
-function processConfigDerived({ jsonData, derivedFields, logger }) {
+export function processConfigDerived({ jsonData, derivedFields, logger }) {
     for (const [targetKey, config] of Object.entries(derivedFields)) {
         const { sources: paths, separator = "" } = config;
         const values = [];
@@ -281,7 +280,7 @@ function processConfigDerived({ jsonData, derivedFields, logger }) {
  *
  * @returns {Promise<void>} Es wird nichts zurückgegeben, aber das Objekt kann durch den Callback verändert werden.
  */
-async function traverseAndProcess(obj, keyToFind, callback, logger) {
+export async function traverseAndProcess(obj, keyToFind, callback, logger) {
     if (typeof obj !== "object" || obj === null) return;
 
     for (const key in obj) {
@@ -320,7 +319,7 @@ async function traverseAndProcess(obj, keyToFind, callback, logger) {
  *
  * @returns {*|undefined} Der gefundene Wert am angegebenen Pfad, oder `undefined`, wenn der Pfad nicht existiert.
  */
-function getByPath(obj, path, logger) {
+export function getByPath(obj, path, logger) {
     const segments = path.split(".");
     let current = obj;
     for (const segment of segments) {
@@ -333,6 +332,7 @@ function getByPath(obj, path, logger) {
             return undefined;
         }
     }
+    return current;
 }
 
 /**
@@ -350,7 +350,7 @@ function getByPath(obj, path, logger) {
  *
  * @returns {void} Die Funktion gibt keinen Wert zurück, verändert aber das übergebene Objekt direkt.
  */
-function setByPath(obj, path, value, logger) {
+export function setByPath(obj, path, value, logger) {
     const keys = path.split(".");
     let current = obj;
     for (let i = 0; i < keys.length - 1; i++) {

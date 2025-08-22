@@ -1,7 +1,7 @@
 import generatePseudonym from "pseudonymous-id-generator";
 import "dotenv/config";
 
-const anonymizationKey = process.env.pseudoKey;
+const anonymizationKey = process.env.PSEUDO_KEY;
 
 /**
  * Pseudonymisiert eine E-Mail-Adresse, indem sowohl der lokale Teil (vor dem "@") 

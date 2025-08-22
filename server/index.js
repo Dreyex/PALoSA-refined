@@ -12,6 +12,8 @@ import startProcessManager from "./utils/processManager.js";
 
 const SESSION_MAX_AGE_MS = 1000 * 60 * 60; // 1 Stunde
 
+const { combine, timestamp, printf, colorize, json } = winston.format;
+
 const dirUploads = path.join(process.cwd(), "uploads");
 const dirOutput = path.join(process.cwd(), "output");
 const dirDownload = path.join(process.cwd(), "download");
@@ -70,12 +72,19 @@ app.use(
 );
 
 // Setup logging
+const customFormat = printf(({ level, timestamp, message, ...meta }) => {
+    const sessionId = meta.sessionId || meta.sessionid || "no-session";
+    // eslint-disable-next-line no-unused-vars
+    const { sessionId: _, sessionid: __, ...rest } = meta;
+    const restString = Object.keys(rest).length
+        ? ` ${JSON.stringify(rest)}`
+        : "";
+    return `${level} ${timestamp} [${sessionId}] ${message}${restString}`;
+});
+
 const logger = winston.createLogger({
     level: "info",
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-    ),
+    format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), json()),
     transports: [
         new winston.transports.File({
             filename: path.join(logDir, "error.log"),
@@ -90,7 +99,9 @@ const logger = winston.createLogger({
 if (!isProd) {
     // In Dev: log to console as well
     logger.add(
-        new winston.transports.Console({ format: winston.format.simple() })
+        new winston.transports.Console({
+            format: combine(colorize({ all: true }), customFormat),
+        }),
     );
 }
 
@@ -135,7 +146,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
-
 
 app.get("/api", (req, res) => {
     const sessionId = req.sessionID;

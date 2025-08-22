@@ -42,7 +42,7 @@ export default async function mergeSettings(sessionId, settings, type, dir = nul
     // Default directory path if not provided
     const baseDir = dir || path.join("server", "uploads", sessionId);
     const dirPath = path.join(baseDir, type);
-    const configPath = path.join(dirPath, "config.json");
+    const configPath = path.join(dirPath, `${type}-config.json`);
 
     logger.info(`starting the process of merging the config.js with input patterns`);
     try {

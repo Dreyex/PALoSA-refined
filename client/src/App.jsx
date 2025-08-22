@@ -198,6 +198,7 @@ function App() {
                         value={settings.jsonSettings} //übergebener Wert
                         onChange={handleSettingsChange} //Callback bei Änderung
                         sessionId={sessionId}
+                        commentFileUpload="Name & Dateiformat: 'json-config.json'"
                     />
                     <SettingField
                         id='xmlSettings'
@@ -210,6 +211,7 @@ function App() {
                         onChange={handleSettingsChange} //Callback bei Änderung
                         comment='Work In Progress / Ohne Funktion'
                         sessionId={sessionId}
+                        commentFileUpload="Name & Dateiformat: 'xml-config.json'"
                     />
                     <SettingField
                         id='regexSettings'
