@@ -29,60 +29,86 @@ dotenv.config();
  * @param {string} uploadDir - Das Basisverzeichnis, in dem sich die Datei "xml/config.json" befindet.
  * @param {string} outputDir - Der Ordner mit den zu verarbeitenden und zu überschreibenden XML-Dateien.
  * @param {Object} settings - Einstellungen zur Anforderung regulärer Ausdrücke für die Mustererkennung.
+ * @param {import('winston').Logger} logger - Logger für die Ausgaben im Log
  *
  * @throws Gibt bei Fehlern beim Lesen, Parsen oder Schreiben einer Datei eine Fehlermeldung aus, verarbeitet aber weiterhin andere Dateien.
  */
-export default async function processXmlFiles(uploadDir, outputDir, settings) {
-    const patterns = await requestRegex(settings, "other");
-    const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
+export default async function processXmlFiles(
+    uploadDir,
+    outputDir,
+    settings,
+    logger
+) {
+    try {
+        const patterns = await requestRegex(settings, "other", logger);
+        const dirents = fs.readdirSync(outputDir, { withFileTypes: true });
 
-    const configPath = path.join(uploadDir, "xml", "config.json");
-    let derivedFields = {};
-    let sources = [];
-    if (fs.existsSync(configPath)) {
-        const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
-        derivedFields = config.derived || {};
-        sources = config.sources || [];
-    }
+        const configPath = path.join(uploadDir, "xml", "config.json");
+        let derivedFields = {};
+        let sources = [];
+        if (fs.existsSync(configPath)) {
+            const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+            derivedFields = config.derived || {};
+            sources = config.sources || [];
+            logger?.info(`Loaded XML config from '${configPath}'`);
+        } else {
+            logger?.warn(`No config found at '${configPath}'`);
+        }
 
-    const parser = new XMLParser({
-        ignoreAttributes: false,
-        preserveOrder: true,
-        trimValues: true,
-    });
-    const builder = new XMLBuilder({
-        ignoreAttributes: false,
-        preserveOrder: true,
-        format: true,
-        indentBy: "  ",
-        suppressEmptyNode: true,
-    });
+        const parser = new XMLParser({
+            ignoreAttributes: false,
+            preserveOrder: true,
+            trimValues: true,
+        });
+        const builder = new XMLBuilder({
+            ignoreAttributes: false,
+            preserveOrder: true,
+            format: true,
+            indentBy: "  ",
+            suppressEmptyNode: true,
+        });
 
-    for (const dirent of dirents) {
-        if (dirent.isFile() && dirent.name.endsWith(".xml")) {
-            const filePath = path.join(outputDir, dirent.name);
-            try {
-                const fileContent = fs.readFileSync(filePath, "utf-8");
-                const parsedXml = parser.parse(fileContent);
+        for (const dirent of dirents) {
+            if (dirent.isFile() && dirent.name.endsWith(".xml")) {
+                const filePath = path.join(outputDir, dirent.name);
+                try {
+                    const fileContent = fs.readFileSync(filePath, "utf-8");
+                    const parsedXml = parser.parse(fileContent);
 
-                pseudonymizeXmlNodes(parsedXml, sources, patterns);
-
-                let processedXmlString = builder.build(parsedXml);
-                for (const field in derivedFields) {
-                    const regex = new RegExp(derivedFields[field], "g");
-                    processedXmlString = processedXmlString.replace(regex, () =>
-                        generatePseudonym()
+                    // Quelle-Felder pseudonymisieren
+                    await pseudonymizeXmlNodes(
+                        parsedXml,
+                        sources,
+                        patterns,
+                        logger
                     );
-                }
 
-                fs.writeFileSync(filePath, processedXmlString, "utf-8");
-            } catch (err) {
-                console.error(
-                    `Fehler bei der Verarbeitung der Datei ${filePath}:`,
-                    err
-                );
+                    let processedXmlString = builder.build(parsedXml);
+
+                    // Derived Fields/RegEx anonymisieren
+                    for (const field in derivedFields) {
+                        const regex = new RegExp(derivedFields[field], "g");
+                        processedXmlString = processedXmlString.replace(
+                            regex,
+                            () => generatePseudonym()
+                        );
+                    }
+
+                    fs.writeFileSync(filePath, processedXmlString, "utf-8");
+                    logger?.info(`Anonymized XML file: ${dirent.name}`);
+                } catch (err) {
+                    logger?.error(
+                        `Fehler bei der Verarbeitung der Datei ${filePath}:`,
+                        { error: err }
+                    );
+                    throw err;
+                }
             }
         }
+        logger?.info("Finished processing all XML files.");
+    } catch (error) {
+        logger?.error("Error in processXmlFiles:", { error });
+        throw error;
     }
 }
 
@@ -106,33 +132,20 @@ function matchesAnyPattern(text, patterns) {
 /**
  * Rekursive Funktion, die XML-Knoten durchläuft und Textinhalte pseudonymisiert,
  * wenn diese bestimmten Bedingungen entsprechen (Quell-Elementnamen oder Muster).
- * 
+ *
  * Dabei werden E-Mail-Adressen, IPv4-Adressen und andere Inhalte gemäß jeweiligen Regeln pseudonymisiert.
- * 
+ *
  * @param {Array<Object>} nodes - Array von XML-Knoten im geparsten Format.
  * @param {Array<string>} sourceFields - Liste der XML-Elementnamen, die als besondere Quellen gelten und pseudonymisiert werden sollen.
  * @param {Object} regexPatterns - Objekt mit Schlüssel-Wert-Paaren für reguläre Ausdrücke zum Musterabgleich.
+ * @param {import('winston').Logger} logger - Logger für die Ausgaben im Log
  */
-function pseudonymizeXmlNodes(nodes, sourceFields, regexPatterns) {
+function pseudonymizeXmlNodes(nodes, sourceFields, regexPatterns, logger) {
     nodes.forEach((node) => {
         for (const key in node) {
             if (key === "__text") continue;
 
             const childrenOrValue = node[key];
-
-            // Funktion zum Pseudonymisieren eines Textwerts
-            function pseudonymizeValue(value) {
-                if (isEmailAddress(value)) {
-                    return pseudonymizeEmail(value);
-                } else if (isIPv4Address(value)) {
-                    const cp = new CryptoPAn(process.env.CRYPTO_PAN_KEY);
-                    const ipBuf = ipStringToBuffer(value);
-                    const anonIpBuf = cp.anonymize(ipBuf);
-                    return bufferToIpString(anonIpBuf);
-                } else {
-                    return generatePseudonym();
-                }
-            }
 
             if (sourceFields.includes(key)) {
                 if (Array.isArray(childrenOrValue)) {
@@ -145,26 +158,64 @@ function pseudonymizeXmlNodes(nodes, sourceFields, regexPatterns) {
                         ) {
                             const content = child["__text"];
                             if (matchesAnyPattern(content, regexPatterns)) {
-                                child["__text"] = pseudonymizeValue(content);
+                                child["__text"] = pseudonymizeValue(content, logger);
                             } else {
-                                // Auch hier pseudonymisieren, wenn kein Pattern Match aber Quelle vorhanden
-                                child["__text"] = pseudonymizeValue(content);
+                                child["__text"] = pseudonymizeValue(content, logger);
                             }
                         } else {
-                            pseudonymizeXmlNodes([child]);
+                            pseudonymizeXmlNodes(
+                                [child],
+                                sourceFields,
+                                regexPatterns,
+                                logger
+                            );
                         }
                     });
                 } else if (typeof childrenOrValue === "string") {
-                    if (matchesAnyPattern(childrenOrValue, regexPatterns)) {
-                        node[key] = pseudonymizeValue(childrenOrValue);
-                    } else {
-                        node[key] = pseudonymizeValue(childrenOrValue);
-                    }
+                    node[key] = pseudonymizeValue(childrenOrValue, logger);
                 }
             } else if (Array.isArray(childrenOrValue)) {
-                // Für Knoten, die nicht in sourceFields sind, aber deren Text einem Pattern entspricht
-                pseudonymizeXmlNodes(childrenOrValue);
+                pseudonymizeXmlNodes(
+                    childrenOrValue,
+                    sourceFields,
+                    regexPatterns,
+                    logger
+                );
             }
         }
     });
+}
+
+/**
+ * Pseudonymisiert einen Wert anhand seines Musters (E-Mail, IPv4-Adresse, anderes Feld).
+ *
+ * Die Funktion überprüft zunächst, ob der übergebene Wert einer E-Mail-Adresse oder einer IPv4-Adresse entspricht.
+ * - Ist der Wert eine E-Mail-Adresse, wird die Funktion `pseudonymizeEmail` verwendet und eine entsprechende Info-Lognachricht generiert.
+ * - Ist der Wert eine IPv4-Adresse, wird diese über die CryptoPAn-Methode mit dem Schlüssel aus der Umgebung pseudonymisiert, und eine Info-Lognachricht generiert.
+ * - Entspricht der Wert weder einer E-Mail noch einer IPv4-Adresse, wird ein generischer Pseudonymwert mit `generatePseudonym` erzeugt.
+ * Im Fehlerfall wird eine Error-Lognachricht geschrieben und der Ursprungswert zurückgegeben.
+ *
+ * @param {*} value - Zu pseudonymisierender Wert (E-Mail, IPv4-Adresse oder anderes Feld).
+ * @param {import('winston').Logger} logger - Logger für die Ausgaben im Log
+ * @returns {*} - Der pseudonymisierte Wert oder der Ursprungswert bei Fehlern.
+ */
+function pseudonymizeValue(value, logger) {
+    try {
+        if (isEmailAddress(value)) {
+            logger?.info(`Email pseudonymisiert: ${value}`);
+            return pseudonymizeEmail(value);
+        } else if (isIPv4Address(value)) {
+            logger?.info(`IP pseudonymisiert: ${value}`);
+            const cp = new CryptoPAn(process.env.CRYPTO_PAN_KEY);
+            const ipBuf = ipStringToBuffer(value);
+            const anonIpBuf = cp.anonymize(ipBuf);
+            return bufferToIpString(anonIpBuf);
+        } else {
+            logger?.info(`Value pseudonymisiert (Pattern/Feld): ${value}`);
+            return generatePseudonym();
+        }
+    } catch (error) {
+        logger?.error("Fehler bei pseudonymizeValue", { error });
+        return value; // Original zurückgeben
+    }
 }
