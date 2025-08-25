@@ -229,6 +229,7 @@ export async function processConfigSources({jsonData, logger, configPath }) {
  *
  * @returns {Object} Das bearbeitete JSON-Objekt mit den hinzugefügten oder aktualisierten Derived Fields.
  */
+//TODO: Unterscheidung der Werte pro Array um Kontext zu erhalten und Pseudonymisierung vollumfánglich korrekt anzuwenden
 export function processConfigDerived({ jsonData, derivedFields, logger }) {
     for (const [targetKey, config] of Object.entries(derivedFields)) {
         const { sources: paths, separator = "" } = config;
