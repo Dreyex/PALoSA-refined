@@ -8,7 +8,8 @@
     "test-coverage": "jest . --coverage --verbose",
     "build": "npm run lint && npm run test-coverage",
     "start:prod": "cross-env NODE_ENV=production node index.js",
-    "start": "npm run start:prod"
+    "start": "npm run start:prod",
+    "logs:clear": "node -e \"const fs=require('fs'),path='./logs';fs.readdirSync(path).forEach(f=>fs.rmSync(path+'/'+f,{recursive:true,force:true}));\""
   },
   "keywords": [],
   "author": "",

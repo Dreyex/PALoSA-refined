@@ -229,26 +229,55 @@ export async function processConfigSources({jsonData, logger, configPath }) {
  *
  * @returns {Object} Das bearbeitete JSON-Objekt mit den hinzugefügten oder aktualisierten Derived Fields.
  */
+//TODO: Unterscheidung der Werte pro Array um Kontext zu erhalten und Pseudonymisierung vollumfánglich korrekt anzuwenden
 export function processConfigDerived({ jsonData, derivedFields, logger }) {
     for (const [targetKey, config] of Object.entries(derivedFields)) {
         const { sources: paths, separator = "" } = config;
-        const values = [];
-        for (const pathStr of paths) {
-            const value = getByPath(jsonData, pathStr, logger);
-            if (value !== undefined) values.push(value);
+        const targetSegments = targetKey.split(".");
+        let targetParent = jsonData;
+        for (let i = 0; i < targetSegments.length - 2; i++) {
+            targetParent = targetParent[targetSegments[i]];
         }
-        if (values.length > 0) {
-            setByPath(jsonData, targetKey, values.join(separator), logger);
-            logger?.info(
-                `Set derived field '${targetKey}' with value: ${values.join(
-                    separator
-                )}`
-            );
+        const arrayKey = targetSegments[targetSegments.length - 2];
+        const fieldKey = targetSegments[targetSegments.length - 1];
+        if (Array.isArray(targetParent[arrayKey])) {
+            // Für jedes Element im Array derived Feld setzen
+            targetParent[arrayKey].forEach((item, idx) => {
+                const values = [];
+                for (const pathStr of paths) {
+                    // Quelle relativ zum aktuellen Array-Element auflösen
+                    const relPath = pathStr
+                        .split(".")
+                        .slice(targetSegments.length - 1)
+                        .join(".");
+                    const value = getByPath(item, relPath, logger);
+                    if (value !== undefined && !Array.isArray(value)) values.push(value);
+                }
+                item[fieldKey] = values.length > 0 ? values.join(separator) : null;
+                logger?.info(
+                    `Set derived field '${targetKey}' for array index ${idx} with value: ${item[fieldKey]}`
+                );
+            });
         } else {
-            setByPath(jsonData, targetKey, null, logger);
-            logger?.info(
-                `Set derived field '${targetKey}' to null (no source values)`
-            );
+            // Standard: wie bisher
+            const values = [];
+            for (const pathStr of paths) {
+                const value = getByPath(jsonData, pathStr, logger);
+                if (value !== undefined) values.push(value);
+            }
+            if (values.length > 0) {
+                setByPath(jsonData, targetKey, values.join(separator), logger);
+                logger?.info(
+                    `Set derived field '${targetKey}' with value: ${values.join(
+                        separator
+                    )}`
+                );
+            } else {
+                setByPath(jsonData, targetKey, null, logger);
+                logger?.info(
+                    `Set derived field '${targetKey}' to null (no source values)`
+                );
+            }
         }
     }
     return jsonData;
@@ -321,10 +350,17 @@ export async function traverseAndProcess(obj, keyToFind, callback, logger) {
  */
 export function getByPath(obj, path, logger) {
     const segments = path.split(".");
-    let current = obj;
-    for (const segment of segments) {
+    function recursiveGet(current, segIdx) {
+        if (segIdx >= segments.length) return current;
+        const segment = segments[segIdx];
+        if (Array.isArray(current)) {
+            // Für jedes Element im Array rekursiv weitergehen
+            return current
+                .map(item => recursiveGet(item, segIdx))
+                .filter(v => v !== undefined);
+        }
         if (current && typeof current === "object" && segment in current) {
-            current = current[segment];
+            return recursiveGet(current[segment], segIdx + 1);
         } else {
             logger?.warn(
                 `getByPath: Segment '${segment}' nicht gefunden in Pfad '${path}'`
@@ -332,7 +368,7 @@ export function getByPath(obj, path, logger) {
             return undefined;
         }
     }
-    return current;
+    return recursiveGet(obj, 0);
 }
 
 /**
@@ -352,16 +388,30 @@ export function getByPath(obj, path, logger) {
  */
 export function setByPath(obj, path, value, logger) {
     const keys = path.split(".");
-    let current = obj;
-    for (let i = 0; i < keys.length - 1; i++) {
-        if (!(keys[i] in current)) {
-            current[keys[i]] = {};
+    function recursiveSet(current, idx) {
+        const key = keys[idx];
+        if (idx === keys.length - 1) {
+            if (Array.isArray(current)) {
+                // Für jedes Element im Array Wert setzen
+                current.forEach(item => recursiveSet(item, idx));
+            } else {
+                current[key] = value;
+                logger?.info(`setByPath: Wert gesetzt im Pfad '${path}'`);
+            }
+            return;
+        }
+        if (Array.isArray(current)) {
+            // Für jedes Element im Array rekursiv weitergehen
+            current.forEach(item => recursiveSet(item, idx));
+            return;
+        }
+        if (!(key in current)) {
+            current[key] = {};
             logger?.info(
-                `setByPath: Teilpfad '${keys[i]}' wurde erstellt in Pfad '${path}'`
+                `setByPath: Teilpfad '${key}' wurde erstellt in Pfad '${path}'`
             );
         }
-        current = current[keys[i]];
+        recursiveSet(current[key], idx + 1);
     }
-    current[keys[keys.length - 1]] = value;
-    logger?.info(`setByPath: Wert gesetzt im Pfad '${path}'`);
+    recursiveSet(obj, 0);
 }
