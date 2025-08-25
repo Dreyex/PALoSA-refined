@@ -232,23 +232,51 @@ export async function processConfigSources({jsonData, logger, configPath }) {
 export function processConfigDerived({ jsonData, derivedFields, logger }) {
     for (const [targetKey, config] of Object.entries(derivedFields)) {
         const { sources: paths, separator = "" } = config;
-        const values = [];
-        for (const pathStr of paths) {
-            const value = getByPath(jsonData, pathStr, logger);
-            if (value !== undefined) values.push(value);
+        const targetSegments = targetKey.split(".");
+        let targetParent = jsonData;
+        for (let i = 0; i < targetSegments.length - 2; i++) {
+            targetParent = targetParent[targetSegments[i]];
         }
-        if (values.length > 0) {
-            setByPath(jsonData, targetKey, values.join(separator), logger);
-            logger?.info(
-                `Set derived field '${targetKey}' with value: ${values.join(
-                    separator
-                )}`
-            );
+        const arrayKey = targetSegments[targetSegments.length - 2];
+        const fieldKey = targetSegments[targetSegments.length - 1];
+        if (Array.isArray(targetParent[arrayKey])) {
+            // Für jedes Element im Array derived Feld setzen
+            targetParent[arrayKey].forEach((item, idx) => {
+                const values = [];
+                for (const pathStr of paths) {
+                    // Quelle relativ zum aktuellen Array-Element auflösen
+                    const relPath = pathStr
+                        .split(".")
+                        .slice(targetSegments.length - 1)
+                        .join(".");
+                    const value = getByPath(item, relPath, logger);
+                    if (value !== undefined && !Array.isArray(value)) values.push(value);
+                }
+                item[fieldKey] = values.length > 0 ? values.join(separator) : null;
+                logger?.info(
+                    `Set derived field '${targetKey}' for array index ${idx} with value: ${item[fieldKey]}`
+                );
+            });
         } else {
-            setByPath(jsonData, targetKey, null, logger);
-            logger?.info(
-                `Set derived field '${targetKey}' to null (no source values)`
-            );
+            // Standard: wie bisher
+            const values = [];
+            for (const pathStr of paths) {
+                const value = getByPath(jsonData, pathStr, logger);
+                if (value !== undefined) values.push(value);
+            }
+            if (values.length > 0) {
+                setByPath(jsonData, targetKey, values.join(separator), logger);
+                logger?.info(
+                    `Set derived field '${targetKey}' with value: ${values.join(
+                        separator
+                    )}`
+                );
+            } else {
+                setByPath(jsonData, targetKey, null, logger);
+                logger?.info(
+                    `Set derived field '${targetKey}' to null (no source values)`
+                );
+            }
         }
     }
     return jsonData;
