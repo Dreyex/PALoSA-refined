@@ -321,10 +321,17 @@ export async function traverseAndProcess(obj, keyToFind, callback, logger) {
  */
 export function getByPath(obj, path, logger) {
     const segments = path.split(".");
-    let current = obj;
-    for (const segment of segments) {
+    function recursiveGet(current, segIdx) {
+        if (segIdx >= segments.length) return current;
+        const segment = segments[segIdx];
+        if (Array.isArray(current)) {
+            // Für jedes Element im Array rekursiv weitergehen
+            return current
+                .map(item => recursiveGet(item, segIdx))
+                .filter(v => v !== undefined);
+        }
         if (current && typeof current === "object" && segment in current) {
-            current = current[segment];
+            return recursiveGet(current[segment], segIdx + 1);
         } else {
             logger?.warn(
                 `getByPath: Segment '${segment}' nicht gefunden in Pfad '${path}'`
@@ -332,7 +339,7 @@ export function getByPath(obj, path, logger) {
             return undefined;
         }
     }
-    return current;
+    return recursiveGet(obj, 0);
 }
 
 /**
@@ -352,16 +359,30 @@ export function getByPath(obj, path, logger) {
  */
 export function setByPath(obj, path, value, logger) {
     const keys = path.split(".");
-    let current = obj;
-    for (let i = 0; i < keys.length - 1; i++) {
-        if (!(keys[i] in current)) {
-            current[keys[i]] = {};
+    function recursiveSet(current, idx) {
+        const key = keys[idx];
+        if (idx === keys.length - 1) {
+            if (Array.isArray(current)) {
+                // Für jedes Element im Array Wert setzen
+                current.forEach(item => recursiveSet(item, idx));
+            } else {
+                current[key] = value;
+                logger?.info(`setByPath: Wert gesetzt im Pfad '${path}'`);
+            }
+            return;
+        }
+        if (Array.isArray(current)) {
+            // Für jedes Element im Array rekursiv weitergehen
+            current.forEach(item => recursiveSet(item, idx));
+            return;
+        }
+        if (!(key in current)) {
+            current[key] = {};
             logger?.info(
-                `setByPath: Teilpfad '${keys[i]}' wurde erstellt in Pfad '${path}'`
+                `setByPath: Teilpfad '${key}' wurde erstellt in Pfad '${path}'`
             );
         }
-        current = current[keys[i]];
+        recursiveSet(current[key], idx + 1);
     }
-    current[keys[keys.length - 1]] = value;
-    logger?.info(`setByPath: Wert gesetzt im Pfad '${path}'`);
+    recursiveSet(obj, 0);
 }
